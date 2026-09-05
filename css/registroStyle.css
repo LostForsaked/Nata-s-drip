@@ -1,0 +1,87 @@
+/* ===== Formulario de registro ===== */
+.registro-container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.registro-container fieldset {
+  border: 1px solid var(--color-borde);
+  border-radius: 8px;
+  padding: 24px;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.registro-container legend {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--color-primario);
+  padding: 0 8px;
+  width: 100%;
+  text-align: center;
+}
+
+.campo {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.campo label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--color-primario);
+}
+
+.campo input,
+.campo select {
+  padding: 10px;
+  border: 1px solid var(--color-borde);
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: var(--fuente-principal);
+}
+
+.campo input:focus,
+.campo select:focus {
+  outline: none;
+  border-color: var(--color-secundario);
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.campo .error {
+  color: var(--color-error);
+  font-size: 0.8rem;
+  margin-top: 4px;
+  min-height: 16px; /* para que no "salte" el layout cuando aparece el error */
+}
+
+button[type="submit"] {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--color-secundario);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+button[type="submit"]:hover {
+  background-color: var(--color-primario);
+}
+
+@media (max-width: 600px) {
+  .registro-container {
+    margin: 20px 10px;
+    padding: 0;
+  }
+
+  .registro-container fieldset {
+    padding: 16px;
+  }
+}
