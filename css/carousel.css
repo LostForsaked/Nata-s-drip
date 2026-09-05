@@ -1,0 +1,30 @@
+/* Reduce el contenedor principal del carrusel (achica la imagen y las flechas al mismo tiempo) */
+.carrusel-achicado {
+  max-width: 100px; /* Cambia este valor para ajustar el ancho general */
+  margin: 0 auto;    /* Centra el carrusel en la página */
+}
+
+/* Controla la altura de las imágenes para que no se estiren */
+.carrusel-achicado .carousel-item img {
+  height: 150px;     /* Cambia este valor para ajustar la altura de la imagen */
+  object-fit: cover; /* Recorta la imagen limpiamente sin deformarla */
+}
+
+/* Reduce el tamaño del icono de las flechas (Anterior / Siguiente) */
+.carrusel-achicado .carousel-control-prev-icon,
+.carrusel-achicado .carousel-control-next-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+/* Reduce el área donde se hace clic en las flechas laterales */
+.carrusel-achicado .carousel-control-prev,
+.carrusel-achicado .carousel-control-next {
+  width: 10%;
+}
+
+/* Reduce la escala de las rayitas inferiores (indicadores) */
+.carrusel-achicado .carousel-indicators [data-bs-target] {
+  width: 20px;
+  height: 2px;
+}
