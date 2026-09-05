@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+  
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#"><img src="img/portada.jpg" alt="" width="50"></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <button class="btn border-0 p-0 d-inline-flex align-items-center gap-2 fs-7 text-dark shadow-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">
+        <span class="navbar-toggler-icon"></span>
+        <span class="fw-semibold">Menú</span>
+        </button>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="index.html">Inicio</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="Productos.html">Producto</a>
+        </li>
+         <li class="nav-item">
+          <a class="nav-link" href="Nosotros.html">Nosotros</a>
+        </li>
+         <li class="nav-item">
+          <a class="nav-link" href="Blogs.html">Blogs</a>
+        </li>
+         <li class="nav-item">
+          <a class="nav-link" href="Contacto.html">Contacto</a>
+        </li>
+      </ul>
+
+      <ul class="navbar-nav me-2 mb-2 mb-lg-0">
+      <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            inicia sesion o registrate
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="Login.html">inicia sesion</a></li>
+            <li><a class="dropdown-item" href="Registro.html">registrate</a></li>
+          </ul>
+        </li>
+      </ul>
+
+      <form class="d-flex" role="search">
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+
+
+    </div>
+  </div>
+</nav>
+<div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasScrollingLabel">Offcanvas with body scrolling</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">    
+  </div>
+</div>
+
+<div class="container">
+      <h1 class="fw-bold text-dark display-5">NOTICIAS IMPORTANTES</h1>
+      <p class="text-muted lead mb-0">Descubre las novedades, datos curiosos e historias detrás de nuestra tienda.</p>
+    </div>
+  </header>
+
+  <!-- Sección Principal de Blogs -->
+  <main class="container mb-5">
+    <div class="row g-4 justify-content-center">
+
+      <!-- TARJETA 1: CASO CURIOSO #1 -->
+      <div class="col-12 col-lg-10">
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden h-100 card-blog">
+          <div class="row g-0 align-items-center">
+            
+            <!-- Texto (Lado Izquierdo) -->
+            <div class="col-md-6 p-4 p-md-5">
+              <span class="badge bgpx-3 -primary-subtle text-primary mb-2 fw-semibold py-2 rounded-pill">Dato Curioso</span>
+              <h2 class="card-title fw-bold text-dark mb-3">CASO CURIOSO #1</h2>
+              <p class="card-text text-secondary mb-4">
+                aaaa
+              </p>
+              <a href="DetalleBlog1.html" class="btn btn-primary btn-lg rounded-pill px-4 fs-6 shadow-sm">
+                VER CASO <i class="bi bi-arrow-right ms-2"></i>
+              </a>
+            </div>
+
+            <!-- Imagen (Lado Derecho) -->
+            <div class="col-md-6">
+              <img src="img/blog1.jpg" class="img-fluid w-100 object-fit-cover blog-img" alt="Caso Curioso 1">
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- TARJETA 2: CASO CURIOSO #2 -->
+      <div class="col-12 col-lg-10">
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden h-100 card-blog">
+          <div class="row g-0 align-items-center">
+            
+            <!-- Texto (Lado Izquierdo) -->
+            <div class="col-md-6 p-4 p-md-5">
+              <span class="badge bg-success-subtle text-success mb-2 fw-semibold px-3 py-2 rounded-pill">Historia</span>
+              <h2 class="card-title fw-bold text-dark mb-3">CASO CURIOSO #2</h2>
+              <p class="card-text text-secondary mb-4">
+                aaa.
+              </p>
+              <a href="DetalleBlog2.html" class="btn btn-primary btn-lg rounded-pill px-4 fs-6 shadow-sm">
+                VER CASO <i class="bi bi-arrow-right ms-2"></i>
+              </a>
+            </div>
+
+            <!-- Imagen (Lado Derecho) -->
+            <div class="col-md-6">
+              <img src="#" class="img-fluid w-100 object-fit-cover blog-img" alt="Caso Curioso 2">
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+    
+</body>
+</html>
