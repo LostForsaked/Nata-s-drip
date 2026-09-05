@@ -1,0 +1,23 @@
+:root {
+  --color-primario: #2c3e50;
+  --color-secundario: #3498db;
+  --color-fondo: #f5f6fa;
+  --color-texto: #2f2f2f;
+  --color-error: #e74c3c;
+  --color-borde: #dcdcdc;
+  --fuente-principal: 'Segoe UI', Arial, sans-serif;
+}
+
+/* ===== Reset básico ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--fuente-principal);
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  line-height: 1.5;
+}
