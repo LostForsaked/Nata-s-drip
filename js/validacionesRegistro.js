@@ -500,11 +500,29 @@ document.getElementById("form-registro").addEventListener("submit", function (ev
     formularioValido = false;
   }
 
+    // Verificar que el correo no esté ya registrado
+  if (formularioValido && buscarUsuarioPorCorreo(correo)) {
+    mostrarError("error-correo", "Este correo ya está registrado.");
+    formularioValido = false;
+  }
+
   if (formularioValido) {
+    const nuevoUsuario = {
+      run,
+      nombre,
+      apellidos,
+      correo,
+      password,
+      region,
+      comuna,
+      direccion
+    };
+
+    guardarUsuarios(nuevoUsuario);
+
     alert("¡Registro exitoso! Bienvenido/a " + nombre);
-    // Aquí después podrían guardar el usuario en localStorage si lo necesitan
     document.getElementById("form-registro").reset();
-    cargarComunas(""); // limpia el select de comuna
+    cargarComunas("");
   }
 });
 // ===== Limpiar errores mientras el usuario escribe =====

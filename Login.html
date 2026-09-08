@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Nata's Drip</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/loginStyle.css">
+</head>
+<body>
+    
+    <main class="login-main">
+        <div class="login-logo">
+            <img src="img/Logo.jpg" alt="Logo Nata's Drip">
+            <h1>Nata's Drip</h1>
+        </div>
+
+        <section class="login-container">
+            <form id="form-login" novalidate>
+                <fieldset>
+                    <legend>Inicio de sesión</legend>
+
+                    <div class="campo">
+                        <label for="correo">Correo</label>
+                        <input type="email" id="correo" name="correo" maxlength="100" required>
+                        <span class="error" id="error-correo"></span>
+                    </div>
+                    
+                    <div class="campo">
+                        <label for="password">Contraseña</label>
+                        <input type="password" id="password" name="password" required>
+                        <span class="error" id="error-password"></span>
+                    </div>
+                    
+                    <button type="submit">Iniciar sesión</button>
+                </fieldset>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Nata's Dip</p>
+    </footer>
+    <script src="js/validaciones.js"></script>
+    <script src="js/validacionesLogin.js"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-// ===== Funciones genéricas de manejo de errores =====
+// Funciones genéricas de manejo de errores 
 function mostrarError(idSpan, mensaje) {
   const span = document.getElementById(idSpan);
   if (span) span.textContent = mensaje;
@@ -9,7 +9,7 @@ function limpiarError(idSpan) {
   if (span) span.textContent = "";
 }
 
-// ===== Validación de RUN chileno =====
+// Validación de RUN chileno 
 function validarRun(run) {
   run = run.trim().toUpperCase().replace(/[.\-]/g, "");
 
@@ -34,8 +34,29 @@ function validarRun(run) {
   return dv === dvEsperado;
 }
 
-// ===== Validación de correo institucional/permitido =====
+// Validación de correo institucional/permitido 
 function validarCorreo(correo) {
   const dominiosPermitidos = /^[^\s@]+@(duoc\.cl|profesor\.duoc\.cl|gmail\.com)$/i;
   return dominiosPermitidos.test(correo.trim());
+}
+
+function validarPassword(password) {
+  return password.length >= 4 && password.length <= 10;
+}
+
+//manejo usuarios
+function obtenerUsuarios(){
+  const usuarios = localStorage.getItem("usuarios");
+  return usuarios ? JSON.parse(usuarios) : [];
+}
+
+function guardarUsuarios(usuario){
+  const usuarios = obtenerUsuarios();
+  usuarios.push(usuario);
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+}
+
+function buscarUsuarioPorCorreo(correo){
+  const usuarios = obtenerUsuarios();
+  return usuarios.find(u => u.correo.toLowerCase() === correo.toLowerCase());
 }
