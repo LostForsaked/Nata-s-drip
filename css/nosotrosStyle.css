@@ -1,0 +1,72 @@
+.nosotros-main {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.nosotros-intro,
+.nosotros-mision {
+  margin-bottom: 40px;
+}
+
+.nosotros-intro h1 {
+  color: var(--color-primario);
+  font-size: 2rem;
+  margin-bottom: 16px;
+}
+
+.nosotros-mision h2,
+.nosotros-desarrolladores h2 {
+  color: var(--color-primario);
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+}
+
+.nosotros-intro p,
+.nosotros-mision p {
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+/* ===== Tarjetas de desarrolladores ===== */
+.dev-cards {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.dev-card {
+  flex: 1;
+  min-width: 220px;
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.dev-card img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 12px;
+}
+
+.dev-card h3 {
+  color: var(--color-primario);
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+
+.dev-card p {
+  font-size: 0.85rem;
+  color: var(--color-texto);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 480px) {
+  .dev-cards {
+    flex-direction: column;
+  }
+}
