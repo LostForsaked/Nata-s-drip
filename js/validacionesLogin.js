@@ -1,4 +1,4 @@
-// Envío formulario
+
 
 document.getElementById("form-login").addEventListener("submit", function (evento) {
   evento.preventDefault();
@@ -8,7 +8,7 @@ document.getElementById("form-login").addEventListener("submit", function (event
   const correo = document.getElementById("correo").value;
   const password = document.getElementById("password").value;
 
-  // Limpiar errores anteriores
+
   limpiarError("error-correo");
   limpiarError("error-password");
 
@@ -22,25 +22,36 @@ document.getElementById("form-login").addEventListener("submit", function (event
     formularioValido = false;
   }
 
-    if (formularioValido) {
+  if (formularioValido) {
     const usuario = buscarUsuarioPorCorreo(correo);
 
     if (!usuario || usuario.password !== password) {
       mostrarError("error-password", "Correo o contraseña incorrectos.");
     } else {
+
+      localStorage.setItem("usuario_sesion", JSON.stringify(usuario));
+
       alert("¡Bienvenido/a " + usuario.nombre + "! Sesión iniciada correctamente.");
-      document.getElementById("form-login").reset();
+
+
+      if (usuario.rol === "Administrador") {
+        window.location.href = "Admin/home.html"; // Redirige al panel Admin
+      } else {
+        window.location.href = "index.html"; // Redirige al inicio/tienda
+      }
     }
   }
 });
 
-//Limpiar errores cuando se escribe
 
 const camposLogin = ["correo", "password"];
 
 camposLogin.forEach(id => {
   const campo = document.getElementById(id);
-  campo.addEventListener("input", () => {
-    limpiarError(`error-${id}`);
-  });
+  if (campo) {
+    campo.addEventListener("input", () => {
+      limpiarError(`error-${id}`);
+    });
+  }
 });
+

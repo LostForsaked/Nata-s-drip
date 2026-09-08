@@ -44,19 +44,29 @@ function validarPassword(password) {
   return password.length >= 4 && password.length <= 10;
 }
 
-//manejo usuarios
-function obtenerUsuarios(){
-  const usuarios = localStorage.getItem("usuarios");
-  return usuarios ? JSON.parse(usuarios) : [];
+
+function obtenerUsuarios() {
+  const usuarios = localStorage.getItem("tienda_usuarios");
+  if (!usuarios) {
+
+    const usuariosIniciales = [
+      { id: 1, nombre: "Admin Nata", correo: "admin@gmail.com", password: "admin", rol: "Administrador" },
+      { id: 2, nombre: "Admin Ruben", correo: "admin2@gmail.com", password: "admin", rol: "Administrador" },
+      { id: 3, nombre: "Cliente Demo", correo: "cliente@gmail.com", password: "1234", rol: "Cliente" }
+    ];
+    localStorage.setItem("tienda_usuarios", JSON.stringify(usuariosIniciales));
+    return usuariosIniciales;
+  }
+  return JSON.parse(usuarios);
 }
 
-function guardarUsuarios(usuario){
+function guardarUsuarios(usuario) {
   const usuarios = obtenerUsuarios();
   usuarios.push(usuario);
-  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+  localStorage.setItem("tienda_usuarios", JSON.stringify(usuarios));
 }
 
-function buscarUsuarioPorCorreo(correo){
+function buscarUsuarioPorCorreo(correo) {
   const usuarios = obtenerUsuarios();
-  return usuarios.find(u => u.correo.toLowerCase() === correo.toLowerCase());
+  return usuarios.find(u => u.correo && u.correo.toLowerCase() === correo.toLowerCase().trim());
 }
