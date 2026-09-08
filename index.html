@@ -6,10 +6,10 @@
     <title>Document</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="css/carousel.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   </head>
 <body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
       <a class="navbar-brand" href="">
         <img src="img/Logo.jpg" alt="Logo" width="50" class="rounded">
@@ -28,7 +28,7 @@
             <a class="nav-link" href="index.html">Inicio</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="Productos.html">Productos</a>
+            <a class="nav-link" aria-current="page" href="Productos.html">Productos</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="Nosotros.html">Nosotros</a>
@@ -77,70 +77,64 @@
     </div>
   </div>
 
-<div id="carruselCombinado" class="carousel slide carrusel-achicado" data-bs-ride="carousel">
-
-  <div class="carousel-indicators">
-    <button type="button" data-bs-target="#carruselCombinado" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-    <button type="button" data-bs-target="#carruselCombinado" data-bs-slide-to="1" aria-label="Slide 2"></button>
-    <button type="button" data-bs-target="#carruselCombinado" data-bs-slide-to="2" aria-label="Slide 3"></button>
-  </div>
-
-
-  <div class="carousel-inner">
-    <div class="carousel-item active">
-      <img src="..." class="d-block w-100" alt="Primera imagen">
+<section class="container my-5">
+  <div class="row align-items-center bg-light rounded-4 p-4 p-md-5 shadow-sm">
+    
+    <div class="col-lg-6 mb-4 mb-lg-0">
+      <h1 class="display-4 fw-bold text-dark mb-3">TIENDA ONLINE</h1>
+      <p class="lead text-secondary mb-4">
+        Descubre las últimas tendencias en streetwear y poleras exclusivas. Explora nuestro catálogo y encuentra las mejores ofertas con envíos a todo el país.
+      </p>
+      <a href="Productos.html" class="btn btn-dark btn-lg px-4 py-3 rounded-3 fw-semibold shadow-sm">
+        <i class="bi bi-bag-check me-2"></i> Ver productos
+      </a>
     </div>
-    <div class="carousel-item">
-      <img src="..." class="d-block w-100" alt="Segunda imagen">
+
+    <div class="col-lg-6">
+      <div id="heroCarousel" class="carousel slide shadow-sm rounded-4 overflow-hidden" data-bs-ride="carousel">
+        
+        <div class="carousel-indicators">
+          <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+          <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+          <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        </div>
+
+        <div class="carousel-inner">
+          <div class="carousel-item active" data-bs-interval="3000">
+            <img src="img/catmeme.png" class="d-block w-100 object-fit-cover" style="height: 380px;" alt="Producto destacado 1">
+          </div>
+          <div class="carousel-item" data-bs-interval="3000">
+            <img src="img/Logo.jpg" class="d-block w-100 object-fit-cover" style="height: 380px;" alt="Producto destacado 2">
+          </div>
+          <div class="carousel-item" data-bs-interval="3000">
+            <img src="img/polera-gatos.jpg" class="d-block w-100 object-fit-cover" style="height: 380px;" alt="Producto destacado 3">
+          </div>
+        </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Anterior</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Siguiente</span>
+        </button>
+
+      </div>
     </div>
-    <div class="carousel-item">
-      <img src="..." class="d-block w-100" alt="Tercera imagen">
+
+  </div>
+</section>
+
+ <main class="container my-5">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" id="gridProductos">
     </div>
-  </div>
+  </main>
 
 
-  <button class="carousel-control-prev" type="button" data-bs-target="#carruselCombinado" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Anterior</span>
-  </button>
-
-  <button class="carousel-control-next" type="button" data-bs-target="#carruselCombinado" data-bs-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Siguiente</span>
-  </button>
-
-</div>
-<div class="container-texto">
-  <div class="row">
-    <div class="card" style="width: 18rem;">
-  <img src="..." class="card-img-top" alt="...">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card’s content.</p>
-    <a href="#" class="btn btn-primary">Go somewhere</a>
-  </div>
-</div>
-
-  <div class="card" style="width: 18rem;">
-  <img src="..." class="card-img-top" alt="...">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card’s content.</p>
-    <a href="#" class="btn btn-primary">Go somewhere</a>
-  </div>
-</div>
-
-  <div class="card" style="width: 18rem;">
-  <img src="..." class="card-img-top" alt="...">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card’s content.</p>
-    <a href="#" class="btn btn-primary">Go somewhere</a>
-  </div>
-</div>
-
-  </div>
-</div>
+  <script src="js/productos.js"></script>
+  <script src="js/cardLogic.js"></script>
+  <script src="js/productosVista.js"></script>
 
 </body>
 </html>

@@ -80,7 +80,7 @@ function renderizarCarrito() {
   actualizarResumen(subtotal);
 }
 
-// Cambiar la cantidad de un producto
+
 function cambiarCantidad(productoId, delta) {
   let carrito = obtenerCarrito();
   const item = carrito.find(p => p.id === productoId);
@@ -97,7 +97,7 @@ function cambiarCantidad(productoId, delta) {
   renderizarCarrito();
 }
 
-// Eliminar un producto completo
+
 function eliminarProducto(productoId) {
   let carrito = obtenerCarrito();
   carrito = carrito.filter(p => p.id !== productoId);
@@ -106,7 +106,7 @@ function eliminarProducto(productoId) {
   renderizarCarrito();
 }
 
-// Regla de Negocio: Aplicar Cupón de Descuento
+
 function aplicarCupon() {
   const input = document.getElementById('inputCupon').value.trim().toUpperCase();
   const mensaje = document.getElementById('mensajeCupon');
@@ -123,7 +123,6 @@ function aplicarCupon() {
   renderizarCarrito();
 }
 
-// Calcular Totales con Reglas de Negocio
 function actualizarResumen(subtotal) {
   let descuento = 0;
   if (cuponAplicado) {
