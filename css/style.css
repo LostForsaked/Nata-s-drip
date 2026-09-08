@@ -8,7 +8,7 @@
   --fuente-principal: 'Segoe UI', Arial, sans-serif;
 }
 
-/* ===== Reset básico ===== */
+/* Reset básico */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -74,7 +74,7 @@ legend {
   color: var(--color-error);
   font-size: 0.8rem;
   margin-top: 4px;
-  min-height: 16px; /* para que no "salte" el layout cuando aparece el error */
+  min-height: 16px; 
 }
 
 button[type="submit"] {
@@ -92,4 +92,76 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
   background-color: var(--color-primario);
+}
+
+/*  Ajustes generales para imágenes responsivas  */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/*  Responsive: Tablets (max 768px)  */
+@media (max-width: 768px) {
+  .registro-container,
+  .login-container,
+  .contacto-container {
+    max-width: 90%;
+  }
+
+  fieldset {
+    padding: 20px;
+  }
+
+  legend {
+    font-size: 1.15rem;
+  }
+}
+
+/*  Responsive: Celulares (max 480px)  */
+@media (max-width: 480px) {
+  body {
+    font-size: 0.95rem;
+  }
+
+  .registro-container,
+  .login-container,
+  .contacto-container {
+    max-width: 100%;
+    padding: 0 12px;
+  }
+
+  fieldset {
+    padding: 16px;
+  }
+
+  legend {
+    font-size: 1rem;
+  }
+
+  .campo label {
+    font-size: 0.85rem;
+  }
+
+  .campo input,
+  .campo select,
+  .campo textarea {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+
+  button[type="submit"] {
+    font-size: 0.95rem;
+    padding: 10px;
+  }
+
+  .login-logo img,
+  .contacto-logo img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .login-logo h1,
+  .contacto-logo h1 {
+    font-size: 1.4rem;
+  }
 }
