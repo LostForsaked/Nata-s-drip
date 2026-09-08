@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Blogs - Nata's Drip</title>
+    <link rel="icon" type="image/png" href="img/Logo.jpg">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <header>
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
       <a class="navbar-brand" href="">
@@ -21,15 +23,12 @@
       
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <button class="btn border-0 p-0 d-inline-flex align-items-center gap-2 text-dark shadow-none nav-link" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling">
-              <span class="navbar-toggler-icon"></span>
-              <span class="fw-semibold">Menú</span>
-            </button>
+            
           <li class="nav-item">
             <a class="nav-link" href="index.html">Inicio</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="Productos.html">Productos</a>
+            <a class="nav-link" aria-current="page" href="Productos.html">Productos</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="Nosotros.html">Nosotros</a>
@@ -45,7 +44,7 @@
         <ul class="navbar-nav me-3 mb-2 mb-lg-0">
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              iniciar sesión o registrarte
+              <i class="bi bi-person-circle fs-4"></i>
             </a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="Login.html">Iniciar sesión</a></li>
@@ -54,10 +53,6 @@
           </li>
         </ul>
 
-        <form class="d-flex me-3" role="search">
-          <input class="form-control me-2" type="search" placeholder="Buscar..." aria-label="Search"/>
-          <button class="btn btn-outline-success" type="submit">Buscar</button>
-        </form>
 
         <a href="carrito.html" class="btn btn-outline-dark rounded-pill px-3 py-1 position-relative d-flex align-items-center gap-2 text-decoration-none">
           <i class="bi bi-cart3 fs-5"></i>
@@ -93,19 +88,19 @@
           <div class="row g-0 align-items-center">
 
             <div class="col-md-6 p-4 p-md-5">
-              <span class="badge bgpx-3 -primary-subtle text-primary mb-2 fw-semibold py-2 rounded-pill">Dato Curioso</span>
-              <h2 class="card-title fw-bold text-dark mb-3">CASO CURIOSO #1</h2>
+              <span class="badge bg-primary-subtle text-primary mb-2 fw-semibold py-2 rounded-pill">Noticia</span>
+              <h2 class="card-title fw-bold text-dark mb-3">Internet Made Us Do It</h2>
               <p class="card-text text-secondary mb-4">
-                aaaa
+                <strong>Presentamos nuestra nueva colección!!</strong>
               </p>
-              <a href="DetalleBlog1.html" class="btn btn-primary btn-lg rounded-pill px-4 fs-6 shadow-sm">
-                VER CASO <i class="bi bi-arrow-right ms-2"></i>
+              <a href="DetalleBlog1.html" class="btn btn-outline-dark rounded-pill px-4 mt-3">
+                Conocer más <i class="bi bi-arrow-right ms-2"></i>
               </a>
             </div>
 
 
             <div class="col-md-6">
-              <img src="img/blog1.jpg" class="img-fluid w-100 object-fit-cover blog-img" alt="Caso Curioso 1">
+              <img src="img/poleraLobo.avif" class="img-fluid w-100 object-fit-cover blog-img" alt="Caso Curioso 1">
             </div>
 
           </div>
@@ -120,17 +115,17 @@
 
             <div class="col-md-6 p-4 p-md-5">
               <span class="badge bg-success-subtle text-success mb-2 fw-semibold px-3 py-2 rounded-pill">Historia</span>
-              <h2 class="card-title fw-bold text-dark mb-3">CASO CURIOSO #2</h2>
+              <h2 class="card-title fw-bold text-dark mb-3">Vestirse también puede ser una forma de encontrar gente</h2>
               <p class="card-text text-secondary mb-4">
-                aaa.
+                <strong>Parte del espíritu de Nata's Drip</strong>
               </p>
-              <a href="DetalleBlog2.html" class="btn btn-primary btn-lg rounded-pill px-4 fs-6 shadow-sm">
-                VER CASO <i class="bi bi-arrow-right ms-2"></i>
+              <a href="DetalleBlog2.html" class="btn btn-outline-dark rounded-pill px-4 mt-3">
+                Leer historia <i class="bi bi-arrow-right ms-2"></i>
               </a>
             </div>
 
             <div class="col-md-6">
-              <img src="#" class="img-fluid w-100 object-fit-cover blog-img" alt="Caso Curioso 2">
+              <img src="img/Caso2.jpg" class="img-fluid w-100 object-fit-cover blog-img" alt="Caso Curioso 2">
             </div>
 
           </div>
@@ -140,5 +135,8 @@
     </div>
   </main>
     
+  <footer>
+    <p>&copy; 2026 Nata's Drip</p>
+  </footer>
 </body>
 </html>
