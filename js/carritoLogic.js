@@ -3,13 +3,11 @@ let cuponAplicado = false;
 document.addEventListener('DOMContentLoaded', () => {
   renderizarCarrito();
 
-  // Evento para aplicar cupón
   const btnCupon = document.getElementById('btnCupon');
   if (btnCupon) {
     btnCupon.addEventListener('click', aplicarCupon);
   }
 
-  // Evento para vaciar carrito
   const btnVaciar = document.getElementById('btnVaciar');
   if (btnVaciar) {
     btnVaciar.addEventListener('click', () => {
