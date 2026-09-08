@@ -1,0 +1,133 @@
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/*  Sidebar  */
+.admin-sidebar {
+  width: 240px;
+  background-color: var(--color-primario);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+}
+
+.admin-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.admin-nav {
+  flex: 1;
+  margin-top: 20px;
+}
+
+.admin-nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+.admin-nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.admin-nav a:hover,
+.admin-nav a.active {
+  background-color: rgba(255,255,255,0.1);
+  color: white;
+  border-left: 3px solid var(--color-secundario);
+}
+
+.admin-nav-bottom {
+  border-top: 1px solid rgba(255,255,255,0.15);
+  padding-top: 12px;
+}
+
+.admin-nav-bottom a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.admin-nav-bottom a:hover {
+  color: white;
+}
+
+/*  Contenido principal  */
+.admin-content {
+  flex: 1;
+  padding: 30px;
+  background-color: var(--color-fondo);
+}
+
+.admin-header h1 {
+  color: var(--color-primario);
+  margin-bottom: 20px;
+}
+
+.admin-welcome {
+  background-color: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/*  Responsive  */
+@media (max-width: 768px) {
+  .admin-layout {
+    flex-direction: column;
+  }
+
+  .admin-sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 12px;
+  }
+
+  .admin-nav, .admin-nav-bottom {
+    display: none;
+  }
+}
+
+.admin-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-tabla-container {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.admin-tabla-container table th {
+  color: var(--color-primario);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-stock-critico {
+  background-color: var(--color-error);
+  color: white;
+}
