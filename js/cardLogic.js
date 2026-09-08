@@ -43,11 +43,3 @@ function vaciarCarritoGlobal() {
     location.reload();
   }
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  // Limpia el carrito del almacenamiento local en cuanto recargas la página
-  localStorage.removeItem('mi_carrito');
-  
-  // Actualiza el contador del navbar para que marque 0
-  actualizarBadgesNavbar();
-});

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+</head>
+<body>
+    
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="">
+        <img src="img/Logo.jpg" alt="Logo" width="50" class="rounded">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <button class="btn border-0 p-0 d-inline-flex align-items-center gap-2 text-dark shadow-none nav-link" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling">
+              <span class="navbar-toggler-icon"></span>
+              <span class="fw-semibold">Menú</span>
+            </button>
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Inicio</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="Productos.html">Productos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="Nosotros.html">Nosotros</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="Blogs.html">Blogs</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="Contacto.html">Contacto</a>
+          </li>
+        </ul>
+
+        <ul class="navbar-nav me-3 mb-2 mb-lg-0">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              iniciar sesión o registrarte
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="Login.html">Iniciar sesión</a></li>
+              <li><a class="dropdown-item" href="Registro.html">Registrarse</a></li>
+            </ul>
+          </li>
+        </ul>
+
+        <form class="d-flex me-3" role="search">
+          <input class="form-control me-2" type="search" placeholder="Buscar..." aria-label="Search"/>
+          <button class="btn btn-outline-success" type="submit">Buscar</button>
+        </form>
+
+        <a href="carrito.html" class="btn btn-outline-dark rounded-pill px-3 py-1 position-relative d-flex align-items-center gap-2 text-decoration-none">
+          <i class="bi bi-cart3 fs-5"></i>
+          <span class="fw-medium">Cart</span>
+          <span class="badge bg-primary rounded-circle" id="cartCountNav">0</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="offcanvasScrollingLabel">Menú de Navegación</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <p>Contenido del menú lateral.</p>
+    </div>
+  </div>
+
+    
+    <main class="container my-5">
+    <h2 class="fw-bold mb-4">Mi carrito de compras</h2>
+
+    <div class="row g-4">
+
+      <div class="col-lg-8" id="contenedorCarrito">
+  
+      </div>
+
+
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 20px;">
+          <h5 class="fw-bold mb-3">Resumen de Compra</h5>
+          
+          <div class="d-flex justify-content-between mb-2 text-secondary">
+            <span>Subtotal</span>
+            <span id="resumenSubtotal">$0</span>
+          </div>
+          
+          <div class="d-flex justify-content-between mb-2 text-success d-none" id="filaDescuento">
+            <span>Descuento (10%)</span>
+            <span id="resumenDescuento">-$0</span>
+          </div>
+
+          <hr>
+
+          <div class="d-flex justify-content-between mb-4">
+            <span class="fs-5 fw-bold">TOTAL:</span>
+            <span class="fs-4 fw-bold text-primary" id="resumenTotal">$0</span>
+          </div>
+
+        
+          <div class="mb-3">
+            <label class="form-label small text-muted">¿Tienes un cupón de descuento?</label>
+            <div class="input-group">
+              <input type="text" id="inputCupon" class="form-control" placeholder="Ej: NATAS10">
+              <button class="btn btn-outline-secondary" type="button" id="btnCupon">Aplicar</button>
+            </div>
+            <small id="mensajeCupon" class="d-block mt-1"></small>
+          </div>
+
+          <button class="btn btn-success btn-lg w-100 rounded-3 fw-bold py-3 mb-2" id="btnPagar">
+            PAGAR AHORA
+          </button>
+          
+          <button class="btn btn-link text-danger btn-sm text-decoration-none w-100" id="btnVaciar">
+            <i class="bi bi-trash me-1"></i> Vaciar Carrito
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/productos.js"></script>
+  <script src="js/cardLogic.js"></script>
+  <script src="js/carritoLogic.js"></script>
+
+</body>
+</html>
