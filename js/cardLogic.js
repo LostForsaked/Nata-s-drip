@@ -32,13 +32,11 @@ function actualizarBadgesNavbar() {
 }
 
 function vaciarCarritoGlobal() {
-  // Eliminar los datos guardados
   localStorage.removeItem('mi_carrito');
   
-  // Actualizar el número del navbar a 0
+
   actualizarBadgesNavbar();
   
-  // Opcional: si estás en la página del carrito, puedes recargar para limpiar la vista
   if (document.getElementById('gridProductosCarrito')) {
     location.reload();
   }
