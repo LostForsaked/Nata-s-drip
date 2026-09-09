@@ -14,10 +14,7 @@ const catalogoInicial = [
   { id: 12, titulo: "Vader samurai", precio: 14990, img: "img/vader.webp", descripcion: "Star Wars - Darth Vader Samurai - Polera" }
 ];
 
-// Alias usado por la vista de la tienda (cardLogic.js, productosVista.js,
-// detalleLogic.js y carritoLogic.js) para mostrar productos y manejar el carrito.
-// Sin esta línea esas funciones lanzan "productosCatalogo is not defined" y
-// la tienda (Home, Productos, Detalle, Carrito) queda en blanco.
+
 const productosCatalogo = catalogoInicial;
 
 //  Manejo de productos en localStorage 
