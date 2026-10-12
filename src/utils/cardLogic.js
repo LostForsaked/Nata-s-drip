@@ -1,41 +1,90 @@
-// src/utils/cardLogic.js
-import { productosCatalogo } from './productos';
+import { DB_KEYS, obtenerProductos, buscarProductoPorId, precioFinal } from "../data/db";
 
-export function obtenerCarrito() {
-  const cartData = localStorage.getItem('mi_carrito');
-  if (!cartData) return [];
-  
-  const carrito = JSON.parse(cartData);
-  
-  // Filtramos para asegurarnos de que solo existan productos válidos del catálogo
-  const carritoValido = carrito.filter(item => {
-    return productosCatalogo.some(p => p.id === item.id);
-  });
+export const CUPON = { codigo: "NATAS10", porcentaje: 10};
 
-  if (carritoValido.length !== carrito.length) {
-    localStorage.setItem('mi_carrito', JSON.stringify(carritoValido));
-  }
-
-  return carritoValido;
+function guardar(carrito){
+  localStorage.setItem(DB_KEYS.carrito, JSON.stringify(carrito));
+  window.dispatchEvent(new Event("carritoActualizado"));
 }
 
-export function agregarAlCarritoGlobal(productoId, cantidad = 1) {
-  let carrito = obtenerCarrito();
-  const index = carrito.findIndex(item => item.id === productoId);
+export function obtenerCarrito(){
+  let carrito;
+  try{
+    carrito = JSON.parse(localStorage.getItem(DB_KEYS.carrito) || "[]");
+  }catch{
+    carrito = [];
+  }
+  if (!Array.isArray(carrito)) return [];
 
-  if (index !== -1) {
-    carrito[index].cantidad += cantidad;
-  } else {
-    carrito.push({ id: productoId, cantidad: cantidad });
+  const idsValidos = new Set(obtenerProductos().map((p) => String(p.id)));
+  return carrito.filter((item) => idsValidos.has(String(item.id)));
+}
+
+export function agregarAlCarritoGlobal(productoId, cantidad = 1){
+  const producto = buscarProductoPorId(productoId);
+  if (!producto || Number(producto.stock) <=0){
+    return {ok: false, motivo: "sin-stock"};
   }
 
-  localStorage.setItem('mi_carrito', JSON.stringify(carrito));
-  
-  // Disparamos el evento para que el Navbar actualice el número al instante
-  window.dispatchEvent(new Event('carritoActualizado'));
+  const carrito = obtenerCarrito();
+  const item = carrito.find((i) => String(i.id)=== String(productoId));
+  const actual = item ? item.cantidad : 0;
+  const deseada = actual + Number(cantidad);
+  const nueva = Math.min(deseada, Number(producto.stock));
+
+  if (item) item.cantidad = nueva;
+  else carrito.push({id: producto.id, cantidad: nueva});
+
+  guardar(carrito);
+  return {ok: true, limitadoPorStock: deseada > nueva};
+}
+
+export function cambiarCantidadCarrito(productoId, delta) {
+  const producto = buscarProductoPorId(productoId);
+  const carrito = obtenerCarrito()
+    .map((item) => {
+      if (String(item.id) !== String(productoId)) return item;
+      const nueva = Math.min(item.cantidad + delta, Number(producto?.stock ?? item.cantidad));
+      return nueva > 0 ? { ...item, cantidad: nueva } : null;
+    })
+    .filter(Boolean);
+  guardar(carrito);
+}
+
+export function quitarDelCarrito(productoId) {
+  guardar(obtenerCarrito().filter((i) => String(i.id) !== String(productoId)));
 }
 
 export function vaciarCarritoGlobal() {
-  localStorage.removeItem('mi_carrito');
-  window.dispatchEvent(new Event('carritoActualizado'));
+  localStorage.removeItem(DB_KEYS.carrito);
+  window.dispatchEvent(new Event("carritoActualizado"));
+}
+
+export function detalleCarrito() {
+  return obtenerCarrito()
+    .map((item) => {
+      const producto = buscarProductoPorId(item.id);
+      if (!producto) return null;
+      const precioUnitario = precioFinal(producto);
+      return {
+        id: producto.id,
+        producto,
+        nombre: producto.nombre,
+        imagen: producto.imagen,
+        cantidad: item.cantidad,
+        precioUnitario,
+        subtotal: precioUnitario * item.cantidad,
+      };
+    })
+    .filter(Boolean);
+}
+
+export function cuponEsValido(texto) {
+  return String(texto).trim().toUpperCase() === CUPON.codigo;
+}
+
+export function calcularTotales(items, cuponAplicado = false) {
+  const subtotal = items.reduce((acc, i) => acc + i.subtotal, 0);
+  const descuento = cuponAplicado ? Math.round((subtotal * CUPON.porcentaje) / 100) : 0;
+  return { subtotal, descuento, total: subtotal - descuento };
 }
