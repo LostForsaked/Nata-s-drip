@@ -1,4 +1,3 @@
-// src/utils/validaciones.js
 
 // Validar que un campo no esté vacío
 export function validarRequerido(valor) {
@@ -7,16 +6,17 @@ export function validarRequerido(valor) {
 
 // Validar que el precio sea un número válido y mayor a 0
 export function validarPrecio(precio) {
-  const numero = parseFloat(precio);
-  return !isNaN(numero) && numero > 0;
+  if (String(precio).trim() == "") return false;
+  const numero = Number(precio);
+  return !isNaN(numero) && numero >= 0;
 }
 
 // Validar stock (número entero mayor o igual a 0)
 export function validarStock(stock) {
-  const numero = parseInt(stock, 10);
-  return !isNaN(numero) && numero >= 0;
+  if (String(stock).trim() === "") return false;
+  const numero = Number(stock);
+  return Number.isInteger(numero) && numero >= 0;
 }
-
 // Validar formato de email básico (mantenido por compatibilidad)
 export function validarEmail(email) {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -64,27 +64,5 @@ export function validarComentario(comentario) {
   return comentario.trim().length > 0 && comentario.trim().length <= 500;
 }
 
-export function obtenerUsuarios() {
-  const usuarios = localStorage.getItem("tienda_usuarios");
-  if (!usuarios) {
-    const usuariosIniciales = [
-      { id: 1, nombre: "Admin Nata", correo: "admin@gmail.com", password: "admin", rol: "Administrador" },
-      { id: 2, nombre: "Admin Ruben", correo: "admin2@gmail.com", password: "admin", rol: "Administrador" },
-      { id: 3, nombre: "Cliente Demo", correo: "cliente@gmail.com", password: "1234", rol: "Cliente" }
-    ];
-    localStorage.setItem("tienda_usuarios", JSON.stringify(usuariosIniciales));
-    return usuariosIniciales;
-  }
-  return JSON.parse(usuarios);
-}
+export { obtenerUsuarios, buscarUsuarioPorCorreo, crearUsuario as guardarUsuarios } from "../data/db"
 
-export function guardarUsuarios(usuario) {
-  const usuarios = obtenerUsuarios();
-  usuarios.push(usuario);
-  localStorage.setItem("tienda_usuarios", JSON.stringify(usuarios));
-}
-
-export function buscarUsuarioPorCorreo(correo) {
-  const usuarios = obtenerUsuarios();
-  return usuarios.find(u => u.correo && u.correo.toLowerCase() === correo.toLowerCase().trim());
-}

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { productosCatalogo, obtenerProductos } from "../utils/productos";
+import { obtenerProductos } from "../data/db"
 
 export default function Carrito() {
   const navigate = useNavigate();
@@ -76,7 +76,7 @@ export default function Carrito() {
     }
   };
 
-  const catalogo = obtenerProductos() || productosCatalogo || [];
+  const catalogo = obtenerProductos();
 
   const itemsConDetalle = carrito
     .map((item) => {

@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { productosCatalogo } from '../utils/productos';
+import { obtenerProductos } from '../data/db';
 import { agregarAlCarritoGlobal } from '../utils/cardLogic';
 
 
@@ -10,6 +10,8 @@ function Productos() {
     agregarAlCarritoGlobal(id, 1);
   };
 
+  const productos = obtenerProductos();
+
   return (
     <main className="container my-5">
       <h2 className="text-center fw-bold mb-4 text-uppercase tracking-wide">
@@ -17,7 +19,7 @@ function Productos() {
       </h2>
 
       <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" id="gridProductos">
-        {productosCatalogo.map((prod) => (
+        {productos.map((prod) => (
           <div className="col" key={prod.id}>
             <div className="card h-100 border-0 shadow-sm text-center p-3 rounded-4">
               <Link to={`/detalles?id=${prod.id}`} className="text-decoration-none">

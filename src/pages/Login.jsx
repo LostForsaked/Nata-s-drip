@@ -5,6 +5,7 @@ import {
   validarPassword, 
   buscarUsuarioPorCorreo 
 } from '../utils/validaciones';
+import { iniciarSesion } from '../data/db';
 
 function Login() {
   const navigate = useNavigate();
@@ -47,12 +48,12 @@ function Login() {
         }));
       } else {
         // Guardar sesión en el localStorage
-        localStorage.setItem("usuario_sesion", JSON.stringify(usuario));
+        iniciarSesion(usuario);
 
         alert(`¡Bienvenido/a ${usuario.nombre}! Sesión iniciada correctamente.`);
 
         // Redirección condicional con React Router
-        if (usuario.rol === "Administrador") {
+        if (usuario.rol === "Administrador" || usuario.rol === "Vendedor") {
           navigate("/admin"); // O la ruta de panel de administración que definas
         } else {
           navigate("/"); // Redirige al inicio/tienda
