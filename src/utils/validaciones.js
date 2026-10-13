@@ -66,3 +66,31 @@ export function validarComentario(comentario) {
 
 export { obtenerUsuarios, buscarUsuarioPorCorreo, crearUsuario as guardarUsuarios } from "../data/db"
 
+export const reglasEnvio = {
+  nombre: (v) =>
+    !validarRequerido(v) ? "El nombre es obligatorio." : v.trim().length > 50 ? "Máximo 50 caracteres." : "",
+  apellidos: (v) =>
+    !validarRequerido(v) ? "Los apellidos son obligatorios." : v.trim().length > 100 ? "Máximo 100 caracteres." : "",
+  correo: (v) =>
+    !validarRequerido(v)
+      ? "El correo es obligatorio."
+      : v.trim().length > 100
+        ? "Máximo 100 caracteres."
+        : !validarCorreo(v)
+          ? "Solo se permiten correos @duoc.cl, @profesor.duoc.cl o @gmail.com."
+          : "",
+  calle: (v) =>
+    !validarRequerido(v) ? "La calle es obligatoria." : v.trim().length > 300 ? "Máximo 300 caracteres." : "",
+  departamento: (v) => (v.trim().length > 20 ? "Máximo 20 caracteres." : ""),
+  region: (v) => (v ? "" : "Selecciona una región."),
+  comuna: (v) => (v ? "" : "Selecciona una comuna."),
+  indicaciones: (v) => (v.trim().length > 300 ? "Máximo 300 caracteres." : ""),
+};
+
+export function validarEnvio(datos) {
+  const errores = {};
+  for (const campo of Object.keys(reglasEnvio)) {
+    errores[campo] = reglasEnvio[campo](datos[campo] ?? "");
+  }
+  return errores;
+}
