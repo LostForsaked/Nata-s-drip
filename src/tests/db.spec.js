@@ -1,15 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-function prepararNavegador() {
-  localStorage.clear();
-
-  vi.spyOn(window, 'dispatchEvent');
-}
-
-beforeEach(() => {
-  vi.restoreAllMocks();
-  prepararNavegador();
-});
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import {
   iniciarDB,

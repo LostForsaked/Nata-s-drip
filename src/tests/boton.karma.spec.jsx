@@ -1,6 +1,6 @@
 
 
-import React from 'react';
+import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { describe, it, expect, afterEach } from 'vitest';
 
@@ -10,7 +10,7 @@ describe('Pruebas React con Vitest', () => {
 
   afterEach(() => {
     if (root) {
-      root.unmount();
+      act(() => root.unmount());
       root = null;
     }
 
@@ -25,7 +25,7 @@ describe('Pruebas React con Vitest', () => {
     document.body.appendChild(container);
 
     root = createRoot(container);
-    root.render(<button>Agregar al carrito</button>);
+    act(() => root.render(<button>Agregar al carrito</button>));
 
     expect(container.textContent).toContain('Agregar al carrito');
   });
