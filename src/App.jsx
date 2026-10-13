@@ -25,7 +25,15 @@ import AdminHome from "./pages/admin/AdminHome";
 import AdminProductos from "./pages/admin/AdminProductos";
 import AdminUsuarios from "./pages/admin/AdminUsuarios";
 import AdminUsuariosNuevo from "./pages/admin/AdminUsuariosNuevo";
-import Pendiente from "./pages/admin/Pendiente";
+import AdminProductosCriticos from "./pages/admin/AdminProductosCriticos";
+import AdminProductoDetalle from "./pages/admin/AdminProductoDetalle";
+import AdminProductoForm from "./pages/admin/AdminProductoForm";
+
+import AdminOrdenes from "./pages/admin/AdminOrdenes";
+import AdminBoleta from "./pages/admin/AdminBoleta";
+import AdminCategorias from "./pages/admin/AdminCategorias";
+import AdminReportes from "./pages/admin/AdminReportes";
+import AdminPerfil from "./pages/admin/AdminPerfil";
 
 // Layout de la tienda pública: Navbar + contenido de la ruta + Footer
 function LayoutTienda() {
@@ -74,23 +82,27 @@ export default function App() {
           <Route path="/nosotros" element={<Nosotros />} />
         </Route>
 
-        {/* ---------- Administración (Administrador y Vendedor) ---------- */}
-        <Route element={<RutaProtegida roles={["Administrador", "Vendedor"]} />}>
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminHome />} />
-            <Route path="productos" element={<AdminProductos />} />
-            <Route path="ordenes" element={<Pendiente titulo="Órdenes y boletas" />} />
-            <Route path="perfil" element={<Pendiente titulo="Mi perfil" />} />
+        <Route path="/admin" element={<AdminLayout />}>
+  <Route index element={<AdminHome />} />
 
-            {/* Solo Administrador */}
-            <Route element={<RutaProtegida roles={["Administrador"]} />}>
-              <Route path="categorias" element={<Pendiente titulo="Categorías" />} />
-              <Route path="usuarios" element={<AdminUsuarios />} />
-              <Route path="usuarios/nuevo" element={<AdminUsuariosNuevo />} />
-              <Route path="reportes" element={<Pendiente titulo="Reportes" />} />
-            </Route>
-          </Route>
+        {/* Administrador y Vendedor: solo lectura */}
+        <Route path="productos" element={<AdminProductos />} />
+        <Route path="productos/criticos" element={<AdminProductosCriticos />} />
+        <Route path="productos/:id" element={<AdminProductoDetalle />} />
+        <Route path="ordenes" element={<AdminOrdenes />} />
+        <Route path="ordenes/:id" element={<AdminBoleta />} />
+        <Route path="perfil" element={<AdminPerfil />} />
+
+        {/* Solo Administrador */}
+        <Route element={<RutaProtegida roles={["Administrador"]} />}>
+          <Route path="productos/nuevo" element={<AdminProductoForm />} />
+          <Route path="productos/:id/editar" element={<AdminProductoForm />} />
+          <Route path="categorias" element={<AdminCategorias />} />
+          <Route path="usuarios" element={<AdminUsuarios />} />
+          <Route path="usuarios/nuevo" element={<AdminUsuariosNuevo />} />
+          <Route path="reportes" element={<AdminReportes />} />
         </Route>
+      </Route>
 
         <Route path="*" element={<NoEncontrado />} />
       </Routes>
