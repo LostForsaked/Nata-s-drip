@@ -33,14 +33,14 @@ function Nosotros() {
         <div className="row g-4 justify-content-center dev-cards">
           <div className="col-md-4">
             <article className="dev-card p-4 border rounded-4 shadow-sm bg-light h-100">
-              <img src="img/Natanael.png" alt="Foto Natanael" width="100" className="rounded-circle mb-3 object-fit-cover" style={{ height: '100px' }} />
+              <img src="/img/Natanael.png" alt="Foto Natanael" width="100" className="rounded-circle mb-3 object-fit-cover" style={{ height: '100px' }} />
               <h3 className="h5 fw-bold text-dark">Natanael Figueroa</h3>
               <p className="text-muted small mb-0">Estudiante DUOC UC - Ingeniería en informática</p>
             </article>
           </div>
           <div className="col-md-4">
             <article className="dev-card p-4 border rounded-4 shadow-sm bg-light h-100">
-              <img src="img/Ruben.jpeg" alt="Foto Ruben" width="100" className="rounded-circle mb-3 object-fit-cover" style={{ height: '100px' }} />
+              <img src="/img/Ruben.jpeg" alt="Foto Ruben" width="100" className="rounded-circle mb-3 object-fit-cover" style={{ height: '100px' }} />
               <h3 className="h5 fw-bold text-dark">Rubén Arteaga</h3>
               <p className="text-muted small mb-0">Estudiante DUOC UC - Ingeniería en informática</p>
             </article>

@@ -6,7 +6,7 @@ const datosBlogs = {
     categoria: 'Noticia',
     badgeClass: 'bg-primary-subtle text-primary',
     titulo: 'Internet Made Us Do It',
-    imagen: 'img/poleraLobo.avif',
+    imagen: '/img/poleraLobo.avif',
     resumen: "Nata's Drip presenta su nueva colección inspirada en la cultura de internet",
     contenido: (
       <>
@@ -24,7 +24,7 @@ const datosBlogs = {
     categoria: 'Dato curioso',
     badgeClass: 'bg-primary-subtle text-primary',
     titulo: 'Vestirse también puede ser una forma de encontrar gente',
-    imagen: 'img/Caso2.jpg',
+    imagen: '/img/Caso2.jpg',
     resumen: 'Cuando una referencia se convierte en una conversación',
     contenido: (
       <>

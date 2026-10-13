@@ -50,7 +50,7 @@ function Contacto() {
   return (
     <main className="contacto-main my-5">
       <div className="contacto-logo text-center mb-4">
-        <img src="img/Logo.jpg" alt="Logo Nata's Drip" width="80" className="rounded mb-2" />
+        <img src="/img/Logo.jpg" alt="Logo Nata's Drip" width="80" className="rounded mb-2" />
         <h1 className="fw-bold">Nata's Drip</h1>
       </div>
 

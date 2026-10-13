@@ -39,13 +39,13 @@ function Inicio() {
 
               <div className="carousel-inner">
                 <div className="carousel-item active" data-bs-interval="3000">
-                  <img src="img/catmeme.png" className="d-block w-100 object-fit-cover" style={{ height: '380px' }} alt="Producto destacado 1" />
+                  <img src="/img/catmeme.png" className="d-block w-100 object-fit-cover" style={{ height: '380px' }} alt="Producto destacado 1" />
                 </div>
                 <div className="carousel-item" data-bs-interval="3000">
-                  <img src="img/vader.webp" className="d-block w-100 object-fit-cover" style={{ height: '380px' }} alt="Producto destacado 2" />
+                  <img src="/img/vader.webp" className="d-block w-100 object-fit-cover" style={{ height: '380px' }} alt="Producto destacado 2" />
                 </div>
                 <div className="carousel-item" data-bs-interval="3000">
-                  <img src="img/sixseven.webp" className="d-block w-100 object-fit-cover" style={{ height: '380px' }} alt="Producto destacado 3" />
+                  <img src="/img/sixseven.webp" className="d-block w-100 object-fit-cover" style={{ height: '380px' }} alt="Producto destacado 3" />
                 </div>
               </div>
 
@@ -92,9 +92,7 @@ function Inicio() {
       </main>
 
       {/* Footer */}
-      <footer className="text-center py-4 bg-light mt-5">
-        <p className="text-muted mb-0">&copy; 2026 Nata's Drip</p>
-      </footer>
+      
     </>
   );
 }

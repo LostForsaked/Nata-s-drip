@@ -8,7 +8,7 @@ const articulosBlog = [
     badgeClass: 'bg-primary-subtle text-primary',
     titulo: 'Internet Made Us Do It',
     subtitulo: 'Presentamos nuestra nueva colección!!',
-    imagen: 'img/poleraLobo.avif',
+    imagen: '/img/poleraLobo.avif',
     textoBoton: 'Conocer más',
   },
   {
@@ -17,7 +17,7 @@ const articulosBlog = [
     badgeClass: 'bg-success-subtle text-success',
     titulo: 'Vestirse también puede ser una forma de encontrar gente',
     subtitulo: "Parte del espíritu de Nata's Drip",
-    imagen: 'img/Caso2.jpg',
+    imagen: '/img/Caso2.jpg',
     textoBoton: 'Leer historia',
   },
 ];
