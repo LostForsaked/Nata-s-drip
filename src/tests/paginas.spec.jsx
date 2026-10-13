@@ -95,6 +95,20 @@ describe('Smoke tests de las páginas', () => {
     expect(container.querySelector('h1, h2, h3, h4, h5, h6, legend')).not.toBeNull();
   });
 
+  it('permite que un cliente abra su perfil desde el menú de cuenta', () => {
+    const cliente = obtenerUsuarios().find((usuario) => usuario.rol === 'Cliente');
+    iniciarSesion(cliente);
+    window.history.replaceState({}, '', '/perfil');
+
+    render(<App />);
+
+    expect(screen.getByRole('heading', { name: 'Mi perfil' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Mis datos' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Mi perfil' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Guardar cambios' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Actualizar contraseña' })).toBeTruthy();
+  });
+
   it('renderiza la vista Pendiente, que no está conectada a una ruta', () => {
     render(<Pendiente titulo="Vista pendiente" />);
 

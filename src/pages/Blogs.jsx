@@ -25,14 +25,14 @@ const articulosBlog = [
 function Blogs() {
   return (
     <>
-      <header className="container my-5 text-center text-md-start">
+      <header className="container my-5 text-center text-md-start blog-page-header">
         <h1 className="fw-bold text-dark display-5">NOTICIAS IMPORTANTES</h1>
         <p className="text-muted lead mb-0">
           Descubre las novedades, datos curiosos e historias detrás de nuestra tienda.
         </p>
       </header>
 
-      <main className="container mb-5">
+      <main className="container mb-5 blogs-page">
         <div className="row g-4 justify-content-center">
           {articulosBlog.map((item) => (
             <div className="col-12 col-lg-10" key={item.id}>

@@ -26,6 +26,7 @@ las vistas de compra y boletas.
 | Inicio de sesión | `/login` |
 | Registro | `/registro` |
 | Nosotros | `/nosotros` |
+| Perfil del cliente | `/perfil` |
 | Admin: dashboard | `/admin` |
 | Admin: productos | `/admin/productos` |
 | Admin: productos críticos | `/admin/productos/criticos` |

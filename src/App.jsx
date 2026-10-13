@@ -297,6 +297,9 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Registro />} />
             <Route path="/nosotros" element={<Nosotros />} />
+            <Route element={<RutaProtegida roles={["Cliente"]} />}>
+              <Route path="/perfil" element={<AdminPerfil />} />
+            </Route>
           </Route>
 
           <Route path="/admin" element={<AdminLayout />}>

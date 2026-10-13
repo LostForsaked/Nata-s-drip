@@ -60,6 +60,58 @@ body {
   object-fit: cover;
 }
 
+.blog-page-header h1 {
+  color: #fffaf6 !important;
+}
+
+.blog-page-header p {
+  color: #ffe0c2 !important;
+}
+
+.blogs-page .card-blog {
+  background: rgba(34, 17, 17, 0.96) !important;
+}
+
+.blogs-page .card-blog .card-title {
+  color: #fffaf6 !important;
+}
+
+.blogs-page .card-blog .card-text {
+  color: #ffe0c2 !important;
+}
+
+.detalle-blog-content h1 {
+  color: #fffaf6 !important;
+}
+
+.detalle-blog-content p.text-primary {
+  color: #ffd076 !important;
+}
+
+.detalle-blog-content p.text-secondary {
+  color: #fff0e4 !important;
+}
+
+.productos-page .category-filter {
+  color: #fffaf5 !important;
+  background-color: #211113 !important;
+}
+
+.productos-page .category-filter option {
+  color: #fffaf5 !important;
+  background-color: #211113 !important;
+}
+
+.productos-page .order-filter {
+  color: #fffaf5 !important;
+  background-color: #211113 !important;
+}
+
+.productos-page .order-filter option {
+  color: #fffaf5 !important;
+  background-color: #211113 !important;
+}
+
 
 /* Panel de administración */
 .admin-sidebar {

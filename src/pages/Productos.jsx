@@ -35,7 +35,7 @@ function Productos(){
   const hayFiltros = q || cat || orden;
 
   return (
-    <main className="container my-5">
+    <main className="container my-5 productos-page">
       <h2 className="text-center fw-bold mb-4 text-uppercase">Productos</h2>
 
       {/* Filtros */}
@@ -50,7 +50,7 @@ function Productos(){
           />
         </div>
         <div className="col-6 col-md-3">
-          <select className="form-select" value={cat} onChange={(e) => actualizarFiltro('cat', e.target.value)}>
+          <select className="form-select category-filter" value={cat} onChange={(e) => actualizarFiltro('cat', e.target.value)}>
             <option value="">Todas las categorías</option>
             {obtenerCategorias().map((c) => (
               <option key={c.id} value={c.id}>{c.nombre}</option>
@@ -58,7 +58,7 @@ function Productos(){
           </select>
         </div>
         <div className="col-6 col-md-3">
-          <select className="form-select" value={orden} onChange={(e) => actualizarFiltro('orden', e.target.value)}>
+          <select className="form-select order-filter" value={orden} onChange={(e) => actualizarFiltro('orden', e.target.value)}>
             <option value="">Ordenar por...</option>
             <option value="precio-asc">Precio: menor a mayor</option>
             <option value="precio-desc">Precio: mayor a menor</option>

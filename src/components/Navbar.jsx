@@ -121,6 +121,9 @@ function Navbar() {
                     {esStaff && (
                       <li><Link className="dropdown-item" to="/admin" onClick={cerrarMenu}>Panel de administración</Link></li>
                     )}
+                    {sesion.rol === 'Cliente' && (
+                      <li><Link className="dropdown-item" to="/perfil" onClick={cerrarMenu}>Mi perfil</Link></li>
+                    )}
                     <li><hr className="dropdown-divider" /></li>
                     <li><button className="dropdown-item text-danger" type="button" onClick={handleLogout}>Cerrar sesión</button></li>
                   </>
