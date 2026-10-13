@@ -2,6 +2,15 @@ import { DB_KEYS, obtenerProductos, buscarProductoPorId, precioFinal } from "../
 
 export const CUPON = { codigo: "NATAS10", porcentaje: 10};
 
+export function cuponGuardado() {
+  return localStorage.getItem(CLAVE_CUPON) === CUPON.codigo;
+}
+
+export function guardarCupon(aplicado) {
+  if (aplicado) localStorage.setItem(CLAVE_CUPON, CUPON.codigo);
+  else localStorage.removeItem(CLAVE_CUPON);
+}
+
 function guardar(carrito){
   localStorage.setItem(DB_KEYS.carrito, JSON.stringify(carrito));
   window.dispatchEvent(new Event("carritoActualizado"));
@@ -57,6 +66,7 @@ export function quitarDelCarrito(productoId) {
 
 export function vaciarCarritoGlobal() {
   localStorage.removeItem(DB_KEYS.carrito);
+  localStorage.removeItem(CLAVE_CUPON);
   window.dispatchEvent(new Event("carritoActualizado"));
 }
 
