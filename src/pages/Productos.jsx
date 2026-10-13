@@ -1,5 +1,5 @@
 import { useSearchParams } from "react-router-dom";
-import TarjetaProducto from '../components/TarjetaProductos';
+import TarjetaProducto from '../components/TarjetaProducto';
 import { obtenerProductos, obtenerCategorias, precioFinal } from "../data/db";
 
 function Productos(){

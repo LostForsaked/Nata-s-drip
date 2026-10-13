@@ -23,7 +23,6 @@ export default function TarjetaProducto({producto}) {
             setTimeout(() => setAregado(false), 1200);
         }
     }
-};
 
     return (
     <div className="card h-100 border-0 shadow-sm rounded-4 p-3 position-relative text-center">
@@ -75,3 +74,4 @@ export default function TarjetaProducto({producto}) {
       </button>
     </div>
   );
+}
