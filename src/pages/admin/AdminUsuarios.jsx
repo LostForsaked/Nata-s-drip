@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-// Funciones de gestión de usuarios basadas en tu lógica original
+
 function obtenerUsuarios() {
   const usuarios = localStorage.getItem("tienda_usuarios");
   if (!usuarios) {
@@ -36,46 +36,12 @@ export default function AdminUsuarios() {
   };
 
   return (
-    <div className="admin-layout d-flex" style={{ minHeight: '100vh' }}>
+    <>
       
-      {/* Sidebar Lateral */}
-      <aside className="admin-sidebar bg-dark text-white p-3 d-flex flex-column justify-content-between" style={{ width: '260px', minHeight: '100vh' }}>
-        <div>
-          <div className="admin-logo d-flex align-items-center gap-2 mb-4 pb-3 border-bottom border-secondary">
-            <img src="/img/Logo.jpg" alt="Logo" width="40" className="rounded" />
-            <span className="fw-bold fs-5">Nata's Drip</span>
-          </div>
-
-          <nav className="admin-nav">
-            <ul className="nav nav-pills flex-column gap-2">
-              <li className="nav-item">
-                <Link to="/admin" className="nav-link text-white-50 d-flex align-items-center gap-2">
-                  <i className="bi bi-speedometer2"></i> Dashboard
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/admin/productos" className="nav-link text-white-50 d-flex align-items-center gap-2">
-                  <i className="bi bi-box-seam"></i> Productos
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/admin/usuarios" className="nav-link active text-white bg-primary d-flex align-items-center gap-2">
-                  <i className="bi bi-people"></i> Usuarios
-                </Link>
-              </li>
-            </ul>
-          </nav>
-        </div>
-
-        <div className="admin-nav-bottom border-top border-secondary pt-3 d-flex flex-column gap-2">
-          <Link to="/" className="text-white-50 text-decoration-none d-flex align-items-center gap-2">
-            <i className="bi bi-box-arrow-left"></i> Volver a la tienda
-          </Link>
-        </div>
-      </aside>
+      
 
       {/* Contenido Principal */}
-      <main className="admin-content flex-grow-1 p-4 bg-light">
+      <div>
         <header className="admin-header admin-header-flex d-flex justify-content-between align-items-center mb-4">
           <h1 className="fw-bold text-dark m-0">Gestión de Usuarios</h1>
           {/* Si más adelante agregas la vista de nuevo usuario, puedes configurar su ruta */}
@@ -129,8 +95,8 @@ export default function AdminUsuarios() {
             </p>
           )}
         </section>
-      </main>
+      </div>
 
-    </div>
+    </>
   );
 }
