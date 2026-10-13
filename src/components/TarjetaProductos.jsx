@@ -25,7 +25,7 @@ export default function TarjetaProducto({producto}) {
     }
 };
 
- return (
+    return (
     <div className="card h-100 border-0 shadow-sm rounded-4 p-3 position-relative text-center">
       {oferta && (
         <span className="badge bg-danger position-absolute top-0 start-0 m-3">
@@ -57,7 +57,7 @@ export default function TarjetaProducto({producto}) {
         </span>
       </div>
 
-       {pocasUnidades && <p className="text-warning small mb-2">¡Últimas {stock} unidades!</p>}
+        {pocasUnidades && <p className="text-warning small mb-2">¡Últimas {stock} unidades!</p>}
 
       <button
         type="button"
