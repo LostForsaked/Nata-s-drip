@@ -1,3 +1,4 @@
+import { existeCodigoProducto } from "../data/db";
 
 // Validar que un campo no esté vacío
 export function validarRequerido(valor) {
@@ -92,5 +93,44 @@ export function validarEnvio(datos) {
   for (const campo of Object.keys(reglasEnvio)) {
     errores[campo] = reglasEnvio[campo](datos[campo] ?? "");
   }
+  return errores;
+}
+
+
+export function validarProducto(datos, idExcluido = null) {
+  const errores = {};
+
+  const codigo = String(datos.codigo ?? "").trim();
+  if (!codigo) errores.codigo = "El código es obligatorio.";
+  else if (codigo.length < 3) errores.codigo = "Mínimo 3 caracteres.";
+  else if (existeCodigoProducto(codigo, idExcluido)) errores.codigo = "Ya existe un producto con ese código.";
+
+  const nombre = String(datos.nombre ?? "").trim();
+  if (!nombre) errores.nombre = "El nombre es obligatorio.";
+  else if (nombre.length > 100) errores.nombre = "Máximo 100 caracteres.";
+
+  if (String(datos.descripcion ?? "").trim().length > 500) errores.descripcion = "Máximo 500 caracteres.";
+
+  const precio = String(datos.precio ?? "").trim();
+  if (precio === "") errores.precio = "El precio es obligatorio.";
+  else if (isNaN(Number(precio)) || Number(precio) < 0) errores.precio = "Debe ser un número mayor o igual a 0.";
+
+  const stock = String(datos.stock ?? "").trim();
+  if (stock === "") errores.stock = "El stock es obligatorio.";
+  else if (!Number.isInteger(Number(stock)) || Number(stock) < 0) errores.stock = "Debe ser un número entero mayor o igual a 0.";
+
+  const critico = String(datos.stockCritico ?? "").trim();
+  if (critico !== "" && (!Number.isInteger(Number(critico)) || Number(critico) < 0)) {
+    errores.stockCritico = "Debe ser un número entero mayor o igual a 0.";
+  }
+
+  const descuento = String(datos.descuento ?? "").trim();
+  if (descuento !== "") {
+    const n = Number(descuento);
+    if (!Number.isInteger(n) || n < 0 || n > 100) errores.descuento = "Debe ser un entero entre 0 y 100.";
+  }
+
+  if (!String(datos.categoriaId ?? "").trim()) errores.categoriaId = "Selecciona una categoría.";
+
   return errores;
 }
