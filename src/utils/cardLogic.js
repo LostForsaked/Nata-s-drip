@@ -2,6 +2,8 @@ import { DB_KEYS, obtenerProductos, buscarProductoPorId, precioFinal } from "../
 
 export const CUPON = { codigo: "NATAS10", porcentaje: 10};
 
+const CLAVE_CUPON = "50off";
+
 export function cuponGuardado() {
   return localStorage.getItem(CLAVE_CUPON) === CUPON.codigo;
 }
