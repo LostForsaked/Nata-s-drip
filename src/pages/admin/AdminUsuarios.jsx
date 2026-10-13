@@ -15,6 +15,8 @@ export default function AdminUsuarios() {
   const sesion = obtenerSesion();
 
   const confirmarEliminar = () => {
+    if (!aEliminar) return;
+
     eliminarUsuario(aEliminar.id);
     setUsuarios(obtenerUsuarios());
     setAEliminar(null);
@@ -42,28 +44,40 @@ export default function AdminUsuarios() {
               </tr>
             </thead>
             <tbody>
-              {usuarios.map((usuario) => (
-                <tr key={usuario.id}>
-                  <td className="fw-semibold">{usuario.id}</td>
-                  <td className="fw-bold">{usuario.nombre} {usuario.apellidos}</td>
-                  <td>{usuario.correo}</td>
-                  <td>
-                    <span className={'badge ' + (CLASE_ROL[usuario.rol] || 'bg-secondary')}>
-                      {usuario.rol}
-                    </span>
-                  </td>
-                  <td className="text-end">
-                    <button
-                      className="btn btn-sm btn-outline-danger"
-                      disabled={String(usuario.id) === String(sesion?.id)}
-                      title={String(usuario.id) === String(sesion?.id) ? 'No puedes eliminarte a ti mismo' : 'Eliminar'}
-                      onClick={() => setAEliminar(usuario)}
-                    >
-                      <i className="bi bi-trash"></i>
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {usuarios.map((usuario, index) => {
+                if (!usuario) {
+                  return (
+                    <tr key={`invalid-${index}`}>
+                      <td colSpan="5" className="text-danger text-center">
+                        Registro de usuario inválido en los datos almacenados.
+                      </td>
+                    </tr>
+                  );
+                }
+
+                return (
+                  <tr key={usuario.id}>
+                    <td className="fw-semibold">{usuario.id}</td>
+                    <td className="fw-bold">{usuario.nombre} {usuario.apellidos}</td>
+                    <td>{usuario.correo}</td>
+                    <td>
+                      <span className={'badge ' + (CLASE_ROL[usuario.rol] || 'bg-secondary')}>
+                        {usuario.rol}
+                      </span>
+                    </td>
+                    <td className="text-end">
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        disabled={String(usuario.id) === String(sesion?.id)}
+                        title={String(usuario.id) === String(sesion?.id) ? 'No puedes eliminarte a ti mismo' : 'Eliminar'}
+                        onClick={() => setAEliminar(usuario)}
+                      >
+                        <i className="bi bi-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

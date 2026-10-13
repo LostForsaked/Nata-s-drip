@@ -38,6 +38,8 @@ export default function AdminCategorias() {
   const handleEditar = (c) => { setEditandoId(c.id); setNombre(c.nombre); setError(''); };
 
   const confirmarEliminar = () => {
+    if (!aEliminar) return;
+
     const ok = eliminarCategoria(aEliminar.id); // false si tiene productos
     if (!ok) setError('No puedes eliminar una categoría que tiene productos.');
     setAEliminar(null);

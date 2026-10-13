@@ -72,7 +72,7 @@ export function iniciarDB() {
 }
 
 export function obtenerCategorias() {
-  return leer(DB_KEYS.categorias);
+  return leer(DB_KEYS.categorias).filter((categoria) => categoria !== null);
 }
 
 export function nombreCategoria(id) {
