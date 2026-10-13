@@ -2,9 +2,10 @@
 
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
-import { describe, it, expect, afterEach } from 'vitest';
 
-describe('Pruebas React con Vitest', () => {
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
+describe('Pruebas React con Jasmine y Karma', () => {
   let container = null;
   let root = null;
 

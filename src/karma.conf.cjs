@@ -1,13 +1,15 @@
 module.exports = function (config) {
   config.set({
+    basePath: "..",
+
     frameworks: ["jasmine"],
 
     files: [
-      "/src/tests/**/*.karma.spec.jsx"
+      "src/tests/**/*.karma.spec.jsx"
     ],
 
     preprocessors: {
-      "/src/tests/**/*.karma.spec.jsx": ["webpack"]
+      "src/tests/**/*.karma.spec.jsx": ["webpack"]
     },
 
     webpack: {
