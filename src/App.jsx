@@ -301,28 +301,29 @@ export default function App() {
               <Route path="/perfil" element={<AdminPerfil />} />
             </Route>
           </Route>
+       <Route element={<RutaProtegida roles={["Administrador", "Vendedor"]} />}>
+  <Route path="/admin" element={<AdminLayout />}>
+    <Route index element={<AdminHome />} />
 
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminHome />} />
+    {/* Administrador y Vendedor: solo lectura */}
+    <Route path="productos" element={<AdminProductos />} />
+    <Route path="productos/criticos" element={<AdminProductosCriticos />} />
+    <Route path="productos/:id" element={<AdminProductoDetalle />} />
+    <Route path="ordenes" element={<AdminOrdenes />} />
+    <Route path="ordenes/:id" element={<AdminBoleta />} />
+    <Route path="perfil" element={<AdminPerfil />} />
 
-            {/* Administrador y Vendedor: solo lectura */}
-            <Route path="productos" element={<AdminProductos />} />
-            <Route path="productos/criticos" element={<AdminProductosCriticos />} />
-            <Route path="productos/:id" element={<AdminProductoDetalle />} />
-            <Route path="ordenes" element={<AdminOrdenes />} />
-            <Route path="ordenes/:id" element={<AdminBoleta />} />
-            <Route path="perfil" element={<AdminPerfil />} />
-
-            {/* Solo Administrador */}
-            <Route element={<RutaProtegida roles={["Administrador"]} />}>
-              <Route path="productos/nuevo" element={<AdminProductoForm />} />
-              <Route path="productos/:id/editar" element={<AdminProductoForm />} />
-              <Route path="categorias" element={<AdminCategorias />} />
-              <Route path="usuarios" element={<AdminUsuarios />} />
-              <Route path="usuarios/nuevo" element={<AdminUsuariosNuevo />} />
-              <Route path="reportes" element={<AdminReportes />} />
-            </Route>
-          </Route>
+    {/* Solo Administrador */}
+    <Route element={<RutaProtegida roles={["Administrador"]} />}>
+      <Route path="productos/nuevo" element={<AdminProductoForm />} />
+      <Route path="productos/:id/editar" element={<AdminProductoForm />} />
+      <Route path="categorias" element={<AdminCategorias />} />
+      <Route path="usuarios" element={<AdminUsuarios />} />
+      <Route path="usuarios/nuevo" element={<AdminUsuariosNuevo />} />
+      <Route path="reportes" element={<AdminReportes />} />
+    </Route>
+  </Route>
+</Route>
 
           <Route path="*" element={<NoEncontrado />} />
         </Routes>
