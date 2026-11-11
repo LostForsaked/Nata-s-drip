@@ -2,10 +2,14 @@ import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   buscarProductoPorId,
+  obtenerProductos,
   obtenerCategorias,
   crearProducto,
   actualizarProducto,
 } from '../../data/db';
+import { useCargar } from '../../data/useCargar';
+import Cargando, { ErrorCarga } from '../../components/Cargando';
+
 import { validarProducto } from '../../utils/validaciones';
 
 const IMAGEN_POR_DEFECTO = '/img/Logo.jpg';
@@ -29,7 +33,7 @@ function datosIniciales(producto) {
 }
 
 // El mismo formulario sirve para crear y para editar
-function FormularioProducto({ producto }) {
+function FormularioProducto({ producto, productos, categorias }) {
   const navigate = useNavigate();
   const editando = producto !== null;
 
@@ -37,8 +41,10 @@ function FormularioProducto({ producto }) {
   const [tocados, setTocados] = useState({});
   const [intento, setIntento] = useState(false);
   const [errorImagen, setErrorImagen] = useState('');
+  const [errorServidor, setErrorServidor] = useState('');
 
-  const errores = validarProducto(datos, producto?.id ?? null);
+  // El código único se revisa aquí con la lista cargada; MySQL lo vuelve a garantizar (índice UNIQUE)
+  const errores = validarProducto(datos, producto?.id ?? null, productos);
   const visible = (campo) => tocados[campo] || intento;
   const clase = (campo) => (visible(campo) ? (errores[campo] ? 'is-invalid' : 'is-valid') : '');
 
@@ -71,9 +77,10 @@ function FormularioProducto({ producto }) {
     lector.readAsDataURL(archivo);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIntento(true);
+    setErrorServidor('');
     if (Object.keys(errores).length > 0) return;
 
     const payload = {
@@ -88,8 +95,13 @@ function FormularioProducto({ producto }) {
       imagen: datos.imagen || IMAGEN_POR_DEFECTO,
     };
 
-    if (editando) actualizarProducto(producto.id, payload);
-    else crearProducto(payload);
+    try {
+      if (editando) await actualizarProducto(producto.id, payload);
+      else await crearProducto(payload);
+    } catch (err) {
+      setErrorServidor(err.message);
+      return;
+    }
 
     navigate('/admin/productos', {
       state: { mensaje: editando ? `Producto "${payload.nombre}" actualizado.` : `Producto "${payload.nombre}" creado.` },
@@ -179,7 +191,7 @@ function FormularioProducto({ producto }) {
               onBlur={handleBlur}
             >
               <option value="">-- Selecciona la categoría --</option>
-              {obtenerCategorias().map((c) => (
+              {categorias.map((c) => (
                 <option key={c.id} value={c.id}>{c.nombre}</option>
               ))}
             </select>
@@ -206,6 +218,8 @@ function FormularioProducto({ producto }) {
           )}
         </div>
 
+        {errorServidor && <div className="alert alert-danger" role="alert">{errorServidor}</div>}
+
         <div className="d-flex gap-2">
           <button type="submit" className="btn btn-success px-4">
             {editando ? 'Guardar cambios' : 'Crear producto'}
@@ -219,7 +233,14 @@ function FormularioProducto({ producto }) {
 
 export default function AdminProductoForm() {
   const { id } = useParams();
-  const producto = id ? buscarProductoPorId(id) : null;
+  const { datos, error, recargar } = useCargar(
+    () => Promise.all([id ? buscarProductoPorId(id) : null, obtenerProductos(), obtenerCategorias()]),
+    [id]
+  );
+  if (error) return <ErrorCarga error={error} onReintentar={recargar} />;
+  if (!datos) return <Cargando />;
+
+  const [producto, productos, categorias] = datos;
 
   if (id && !producto) {
     return (
@@ -230,6 +251,12 @@ export default function AdminProductoForm() {
     );
   }
 
-
-  return <FormularioProducto key={producto?.id ?? 'nuevo'} producto={producto ?? null} />;
+  return (
+    <FormularioProducto
+      key={producto?.id ?? 'nuevo'}
+      producto={producto ?? null}
+      productos={productos}
+      categorias={categorias}
+    />
+  );
 }

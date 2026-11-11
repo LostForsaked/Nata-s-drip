@@ -1,67 +1,68 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  detalleCarrito,
+  obtenerCarrito,
   cambiarCantidadCarrito,
   quitarDelCarrito,
   vaciarCarritoGlobal,
-  cuponEsValido,
-  cuponGuardado,
-  guardarCupon,
+  aplicarCupon as aplicarCuponApi,
+  quitarCupon as quitarCuponApi,
   calcularTotales,
-  CUPON,
+  CUPON_EJEMPLO,
 } from '../utils/cardLogic';
 import { esOferta } from '../data/db';
+import { useCargar } from '../data/useCargar';
+import Cargando, { ErrorCarga } from '../components/Cargando';
 import { formatoCLP, etiquetaPrecio } from '../utils/formato';
 
 export default function Carrito() {
   const navigate = useNavigate();
-  const [items, setItems] = useState(() => detalleCarrito());
+  const { datos, error, recargar } = useCargar(() => obtenerCarrito(), []);
   const [cuponInput, setCuponInput] = useState('');
-  const [cuponAplicado, setCuponAplicado] = useState(() => cuponGuardado());
   const [mensajeCupon, setMensajeCupon] = useState(null);
 
-  const refrescar = () => setItems(detalleCarrito());
+  if (error) return <ErrorCarga error={error} onReintentar={recargar} />;
+  if (!datos) return <Cargando />;
 
-  const cambiar = (id, delta) => {
-    cambiarCantidadCarrito(id, delta);
-    refrescar();
+  const items = datos.items;
+  const cupon = datos.cupon; // { codigo, porcentaje } o null (guardado en MySQL)
+
+  const cambiar = async (id, delta) => {
+    await cambiarCantidadCarrito(id, delta);
+    recargar();
   };
 
-  const eliminar = (id) => {
-    quitarDelCarrito(id);
-    refrescar();
+  const eliminar = async (id) => {
+    await quitarDelCarrito(id);
+    recargar();
   };
 
-  const vaciar = () => {
-    vaciarCarritoGlobal(); // también borra el cupón guardado
-    setCuponAplicado(false);
+  const vaciar = async () => {
+    await vaciarCarritoGlobal(); // también borra el cupón guardado
     setCuponInput('');
     setMensajeCupon(null);
-    refrescar();
+    recargar();
   };
 
-  const aplicarCupon = (e) => {
+  const aplicarCupon = async (e) => {
     e.preventDefault();
-    if (cuponEsValido(cuponInput)) {
-      guardarCupon(true);
-      setCuponAplicado(true);
-      setMensajeCupon({ tipo: 'success', texto: `¡Cupón del ${CUPON.porcentaje}% aplicado!` });
-    } else {
-      guardarCupon(false);
-      setCuponAplicado(false);
+    try {
+      const c = await aplicarCuponApi(cuponInput);
+      setMensajeCupon({ tipo: 'success', texto: `¡Cupón del ${c.porcentaje}% aplicado!` });
+    } catch {
       setMensajeCupon({ tipo: 'danger', texto: 'Cupón inválido.' });
     }
+    recargar();
   };
 
-  const quitarCupon = () => {
-    guardarCupon(false);
-    setCuponAplicado(false);
+  const quitarCupon = async () => {
+    await quitarCuponApi();
     setCuponInput('');
     setMensajeCupon(null);
+    recargar();
   };
 
-  const { subtotal, descuento, total } = calcularTotales(items, cuponAplicado);
+  const { subtotal, descuento, total } = calcularTotales(items, cupon);
 
   // Productos cuyo stock bajó después de agregarlos al carrito
   const conProblemas = items.filter((i) => i.cantidad > Number(i.producto.stock));
@@ -166,10 +167,10 @@ export default function Carrito() {
               <span>{formatoCLP(subtotal)}</span>
             </div>
 
-            {cuponAplicado && (
+            {cupon && (
               <div className="d-flex justify-content-between mb-2 text-success">
                 <span>
-                  Cupón {CUPON.codigo} ({CUPON.porcentaje}%)
+                  Cupón {cupon.codigo} ({cupon.porcentaje}%)
                   <button type="button" className="btn btn-link btn-sm text-danger p-0 ms-2" onClick={quitarCupon}>
                     Quitar
                   </button>
@@ -193,7 +194,7 @@ export default function Carrito() {
                   value={cuponInput}
                   onChange={(e) => setCuponInput(e.target.value)}
                   className="form-control"
-                  placeholder={`Ej: ${CUPON.codigo}`}
+                  placeholder={`Ej: ${CUPON_EJEMPLO}`}
                   disabled={items.length === 0}
                 />
                 <button className="btn btn-outline-secondary" type="submit" disabled={items.length === 0}>

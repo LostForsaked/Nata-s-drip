@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom';
 import { obtenerOrdenes } from '../../data/db';
 import { formatoCLP, formatoFecha } from '../../utils/formato';
+import { useCargar } from '../../data/useCargar';
+import Cargando, { ErrorCarga } from '../../components/Cargando';
+
 
 const CLASE_ESTADO = {
   'Pagada': 'bg-success',
@@ -9,7 +12,10 @@ const CLASE_ESTADO = {
 };
 
 export default function AdminOrdenes() {
-  const ordenes = [...obtenerOrdenes()].sort((a, b) => b.fecha.localeCompare(a.fecha));
+  const { datos, error, recargar } = useCargar(() => obtenerOrdenes(), []);
+  if (error) return <ErrorCarga error={error} onReintentar={recargar} />;
+  if (!datos) return <Cargando />;
+  const ordenes = [...datos].sort((a, b) => b.fecha.localeCompare(a.fecha));
 
   return (
     <>

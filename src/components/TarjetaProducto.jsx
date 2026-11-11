@@ -16,11 +16,15 @@ export default function TarjetaProducto({producto}) {
         producto.stockCritico !== undefined &&
         stock <= Number(producto.stockCritico);
 
-    const handleAgregar = () => {
-        const resultado = agregarAlCarritoGlobal(producto.id, 1);
-        if (resultado.ok) {
-            setAregado(true);
-            setTimeout(() => setAregado(false), 1200);
+    const handleAgregar = async () => {
+        try {
+            const resultado = await agregarAlCarritoGlobal(producto.id, 1);
+            if (resultado.ok) {
+                setAregado(true);
+                setTimeout(() => setAregado(false), 1200);
+            }
+        } catch {
+            // sin conexión con el servidor: no se marca como añadido
         }
     }
 

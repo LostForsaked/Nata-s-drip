@@ -1,13 +1,20 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import TarjetaProducto from '../components/TarjetaProducto';
 import { obtenerCategorias, obtenerProductos } from '../data/db';
+import { useCargar } from '../data/useCargar';
+import Cargando, { ErrorCarga } from '../components/Cargando';
 
 export default function Categorias() {
   const [params] = useSearchParams();
   const catSeleccionada = params.get('cat'); // /categorias?cat=2
 
-  const categorias = obtenerCategorias();
-  const productos = obtenerProductos();
+  const { datos, error, recargar } = useCargar(
+    () => Promise.all([obtenerCategorias(), obtenerProductos()]),
+    []
+  );
+  if (error) return <ErrorCarga error={error} onReintentar={recargar} />;
+  if (!datos) return <Cargando />;
+  const [categorias, productos] = datos;
 
   // Con ?cat= se muestra solo esa categoría; sin él, todas
   const visibles = catSeleccionada

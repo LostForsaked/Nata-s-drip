@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  validarRun, 
-  validarCorreo, 
-  validarPassword, 
-  buscarUsuarioPorCorreo, 
-  guardarUsuarios 
-} from '../utils/validaciones';
+import { validarRun, validarCorreo, validarPassword } from '../utils/validaciones';
+import { registrarUsuario } from '../data/db';
 import { regionesComunas } from '../data/regiones';
 
 
@@ -55,7 +50,7 @@ function Registro() {
     }
   };
 
-  const handleSubmit = (evento) => {
+  const handleSubmit = async (evento) => {
     evento.preventDefault();
     let formularioValido = true;
     let nuevosErrores = { run: '', nombre: '', apellidos: '', correo: '', password: '', password2: '', direccion: '' };
@@ -100,11 +95,6 @@ function Registro() {
       formularioValido = false;
     }
 
-    if (formularioValido && buscarUsuarioPorCorreo(formData.correo)) {
-      nuevosErrores.correo = "Este correo ya está registrado.";
-      formularioValido = false;
-    }
-
     setErrores(nuevosErrores);
 
     if (formularioValido) {
@@ -122,9 +112,19 @@ function Registro() {
         rol: "Cliente"
       };
 
-      guardarUsuarios(nuevoUsuario);
-      alert("¡Registro exitoso! Bienvenido/a " + formData.nombre);
-      navigate("/login"); // Redirige al login tras registrarse con éxito
+      try {
+        // El servidor guarda el usuario en MySQL (con la contraseña cifrada) y
+        // avisa si el correo o el RUN ya existen.
+        await registrarUsuario(nuevoUsuario);
+        alert("¡Registro exitoso! Bienvenido/a " + formData.nombre);
+        navigate("/login"); // Redirige al login tras registrarse con éxito
+      } catch (err) {
+        if (err.campo && err.campo in nuevosErrores) {
+          setErrores((prev) => ({ ...prev, [err.campo]: err.message }));
+        } else {
+          alert(err.message);
+        }
+      }
     }
   };
 

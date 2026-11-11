@@ -4,21 +4,30 @@ import {
   eliminarCategoria, obtenerProductos,
 } from '../../data/db';
 import ModalConfirmar from '../../components/ModalConfirmar';
+import { useCargar } from '../../data/useCargar';
+import Cargando, { ErrorCarga } from '../../components/Cargando';
+
 
 export default function AdminCategorias() {
-  const [categorias, setCategorias] = useState(obtenerCategorias);
+  const { datos, error: errorCarga, recargar } = useCargar(
+    () => Promise.all([obtenerCategorias(), obtenerProductos()]),
+    []
+  );
   const [nombre, setNombre] = useState('');
   const [editandoId, setEditandoId] = useState(null);
   const [error, setError] = useState('');
   const [aEliminar, setAEliminar] = useState(null);
 
-  const refrescar = () => setCategorias(obtenerCategorias());
+  if (errorCarga) return <ErrorCarga error={errorCarga} onReintentar={recargar} />;
+  if (!datos) return <Cargando />;
+  const [categorias, productos] = datos;
+
   const cuantos = (id) =>
-    obtenerProductos().filter((p) => String(p.categoriaId) === String(id)).length;
+    productos.filter((p) => String(p.categoriaId) === String(id)).length;
 
   const limpiarForm = () => { setNombre(''); setEditandoId(null); setError(''); };
 
-  const handleGuardar = (e) => {
+  const handleGuardar = async (e) => {
     e.preventDefault();
     const limpio = nombre.trim();
     if (!limpio) return setError('El nombre es obligatorio.');
@@ -29,21 +38,29 @@ export default function AdminCategorias() {
     );
     if (repetida) return setError('Ya existe una categoría con ese nombre.');
 
-    if (editandoId) actualizarCategoria(editandoId, limpio);
-    else crearCategoria(limpio);
+    try {
+      if (editandoId) await actualizarCategoria(editandoId, limpio);
+      else await crearCategoria(limpio);
+    } catch (err) {
+      return setError(err.message);
+    }
     limpiarForm();
-    refrescar();
+    recargar();
   };
 
   const handleEditar = (c) => { setEditandoId(c.id); setNombre(c.nombre); setError(''); };
 
-  const confirmarEliminar = () => {
+  const confirmarEliminar = async () => {
     if (!aEliminar) return;
 
-    const ok = eliminarCategoria(aEliminar.id); // false si tiene productos
-    if (!ok) setError('No puedes eliminar una categoría que tiene productos.');
+    try {
+      const ok = await eliminarCategoria(aEliminar.id); // false si tiene productos
+      if (!ok) setError('No puedes eliminar una categoría que tiene productos.');
+    } catch (err) {
+      setError(err.message);
+    }
     setAEliminar(null);
-    refrescar();
+    recargar();
   };
 
   return (

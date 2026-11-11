@@ -2,10 +2,16 @@ import { Link, useParams } from 'react-router-dom';
 import ResumenOrden from '../../components/ResumenOrden';
 import { buscarOrdenPorId } from '../../data/db';
 import { formatoCLP, formatoFecha } from '../../utils/formato';
+import { useCargar } from '../../data/useCargar';
+import Cargando, { ErrorCarga } from '../../components/Cargando';
+
 
 export default function AdminBoleta() {
   const { id } = useParams();
-  const orden = buscarOrdenPorId(id);
+  const { datos: orden, cargando, error, recargar } = useCargar(() => buscarOrdenPorId(id), [id]);
+
+  if (error) return <ErrorCarga error={error} onReintentar={recargar} />;
+  if (cargando && !orden) return <Cargando />;
 
   if (!orden) {
     return (

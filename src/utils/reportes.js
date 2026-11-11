@@ -19,12 +19,14 @@ export function ventasPorProducto(ordenes) {
     .filter((o) => o.estado === PAGADA)
     .forEach((o) =>
       o.items.forEach((i) => {
-        const actual = mapa.get(i.productoId) ?? {
+        // Si el producto se eliminó (productoId null) se agrupa por nombre
+        const clave = i.productoId ?? `nombre:${i.nombre}`;
+        const actual = mapa.get(clave) ?? {
           productoId: i.productoId, nombre: i.nombre, unidades: 0, ingresos: 0,
         };
         actual.unidades += Number(i.cantidad);
         actual.ingresos += Number(i.subtotal);
-        mapa.set(i.productoId, actual);
+        mapa.set(clave, actual);
       })
     );
   return [...mapa.values()].sort((a, b) => b.unidades - a.unidades);

@@ -1,5 +1,3 @@
-import { existeCodigoProducto } from "../data/db";
-
 // Validar que un campo no esté vacío
 export function validarRequerido(valor) {
   return valor !== null && valor !== undefined && valor.trim() !== "";
@@ -65,8 +63,6 @@ export function validarComentario(comentario) {
   return comentario.trim().length > 0 && comentario.trim().length <= 500;
 }
 
-export { obtenerUsuarios, buscarUsuarioPorCorreo, crearUsuario as guardarUsuarios } from "../data/db"
-
 export const reglasEnvio = {
   nombre: (v) =>
     !validarRequerido(v) ? "El nombre es obligatorio." : v.trim().length > 50 ? "Máximo 50 caracteres." : "",
@@ -97,13 +93,26 @@ export function validarEnvio(datos) {
 }
 
 
-export function validarProducto(datos, idExcluido = null) {
+/**
+ * Valida los datos de un producto.
+ * @param datos                datos del formulario
+ * @param idExcluido           id del producto que se edita (para no chocar consigo mismo)
+ * @param productosExistentes  lista de productos ya guardados, para validar código único.
+ *                             (El servidor además lo garantiza con un índice UNIQUE en MySQL.)
+ */
+export function validarProducto(datos, idExcluido = null, productosExistentes = []) {
   const errores = {};
 
   const codigo = String(datos.codigo ?? "").trim();
   if (!codigo) errores.codigo = "El código es obligatorio.";
   else if (codigo.length < 3) errores.codigo = "Mínimo 3 caracteres.";
-  else if (existeCodigoProducto(codigo, idExcluido)) errores.codigo = "Ya existe un producto con ese código.";
+  else if (
+    productosExistentes.some(
+      (p) =>
+        String(p.codigo).toLowerCase() === codigo.toLowerCase() &&
+        String(p.id) !== String(idExcluido)
+    )
+  ) errores.codigo = "Ya existe un producto con ese código.";
 
   const nombre = String(datos.nombre ?? "").trim();
   if (!nombre) errores.nombre = "El nombre es obligatorio.";

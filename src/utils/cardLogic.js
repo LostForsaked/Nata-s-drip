@@ -1,102 +1,46 @@
-import { DB_KEYS, obtenerProductos, buscarProductoPorId, precioFinal } from "../data/db";
+/**
+ * Carrito de compras.
+ * ANTES: arreglo en localStorage ("mi_carrito") y cupón en "50off".
+ * AHORA: se guarda en MySQL (tablas carrito_items y sesiones), asociado a la
+ * cookie de sesión del visitante, así que sobrevive aunque cambie de navegador
+ * al iniciar sesión y no se puede manipular desde la consola del navegador.
+ */
+import { api } from '../data/api';
 
-export const CUPON = { codigo: "NATAS10", porcentaje: 10};
+/** Solo como pista en el formulario de cupón (el cupón real vive en la tabla `cupones`). */
+export const CUPON_EJEMPLO = 'NATAS10';
 
-const CLAVE_CUPON = "50off";
+/** { items, cupon } — items con producto, cantidad, precioUnitario y subtotal ya calculados. */
+export const obtenerCarrito = () => api('/carrito');
 
-export function cuponGuardado() {
-  return localStorage.getItem(CLAVE_CUPON) === CUPON.codigo;
+export async function detalleCarrito() {
+  return (await obtenerCarrito()).items;
 }
 
-export function guardarCupon(aplicado) {
-  if (aplicado) localStorage.setItem(CLAVE_CUPON, CUPON.codigo);
-  else localStorage.removeItem(CLAVE_CUPON);
+/** Agrega unidades. Devuelve { ok, limitadoPorStock } o { ok:false, motivo:'sin-stock' }. */
+export const agregarAlCarritoGlobal = (productoId, cantidad = 1) =>
+  api('/carrito/items', { method: 'POST', body: { productoId, cantidad } });
+
+export const cambiarCantidadCarrito = (productoId, delta) =>
+  api(`/carrito/items/${productoId}`, { method: 'PATCH', body: { delta } });
+
+export const quitarDelCarrito = (productoId) =>
+  api(`/carrito/items/${productoId}`, { method: 'DELETE' });
+
+/** Vacía el carrito y también quita el cupón. */
+export const vaciarCarritoGlobal = () => api('/carrito', { method: 'DELETE' });
+
+/** Valida el código en MySQL y lo deja aplicado. Lanza ApiError si es inválido. */
+export async function aplicarCupon(codigo) {
+  const { cupon } = await api('/carrito/cupon', { method: 'PUT', body: { codigo } });
+  return cupon;
 }
 
-function guardar(carrito){
-  localStorage.setItem(DB_KEYS.carrito, JSON.stringify(carrito));
-  window.dispatchEvent(new Event("carritoActualizado"));
-}
+export const quitarCupon = () => api('/carrito/cupon', { method: 'DELETE' });
 
-export function obtenerCarrito(){
-  let carrito;
-  try{
-    carrito = JSON.parse(localStorage.getItem(DB_KEYS.carrito) || "[]");
-  }catch{
-    carrito = [];
-  }
-  if (!Array.isArray(carrito)) return [];
-
-  const idsValidos = new Set(obtenerProductos().map((p) => String(p.id)));
-  return carrito.filter((item) => idsValidos.has(String(item.id)));
-}
-
-export function agregarAlCarritoGlobal(productoId, cantidad = 1){
-  const producto = buscarProductoPorId(productoId);
-  if (!producto || Number(producto.stock) <=0){
-    return {ok: false, motivo: "sin-stock"};
-  }
-
-  const carrito = obtenerCarrito();
-  const item = carrito.find((i) => String(i.id)=== String(productoId));
-  const actual = item ? item.cantidad : 0;
-  const deseada = actual + Number(cantidad);
-  const nueva = Math.min(deseada, Number(producto.stock));
-
-  if (item) item.cantidad = nueva;
-  else carrito.push({id: producto.id, cantidad: nueva});
-
-  guardar(carrito);
-  return {ok: true, limitadoPorStock: deseada > nueva};
-}
-
-export function cambiarCantidadCarrito(productoId, delta) {
-  const producto = buscarProductoPorId(productoId);
-  const carrito = obtenerCarrito()
-    .map((item) => {
-      if (String(item.id) !== String(productoId)) return item;
-      const nueva = Math.min(item.cantidad + delta, Number(producto?.stock ?? item.cantidad));
-      return nueva > 0 ? { ...item, cantidad: nueva } : null;
-    })
-    .filter(Boolean);
-  guardar(carrito);
-}
-
-export function quitarDelCarrito(productoId) {
-  guardar(obtenerCarrito().filter((i) => String(i.id) !== String(productoId)));
-}
-
-export function vaciarCarritoGlobal() {
-  localStorage.removeItem(DB_KEYS.carrito);
-  localStorage.removeItem(CLAVE_CUPON);
-  window.dispatchEvent(new Event("carritoActualizado"));
-}
-
-export function detalleCarrito() {
-  return obtenerCarrito()
-    .map((item) => {
-      const producto = buscarProductoPorId(item.id);
-      if (!producto) return null;
-      const precioUnitario = precioFinal(producto);
-      return {
-        id: producto.id,
-        producto,
-        nombre: producto.nombre,
-        imagen: producto.imagen,
-        cantidad: item.cantidad,
-        precioUnitario,
-        subtotal: precioUnitario * item.cantidad,
-      };
-    })
-    .filter(Boolean);
-}
-
-export function cuponEsValido(texto) {
-  return String(texto).trim().toUpperCase() === CUPON.codigo;
-}
-
-export function calcularTotales(items, cuponAplicado = false) {
+/** Totales para mostrar. `cupon` es { codigo, porcentaje } o null. (El servidor los recalcula al comprar.) */
+export function calcularTotales(items, cupon = null) {
   const subtotal = items.reduce((acc, i) => acc + i.subtotal, 0);
-  const descuento = cuponAplicado ? Math.round((subtotal * CUPON.porcentaje) / 100) : 0;
+  const descuento = cupon ? Math.round((subtotal * cupon.porcentaje) / 100) : 0;
   return { subtotal, descuento, total: subtotal - descuento };
 }

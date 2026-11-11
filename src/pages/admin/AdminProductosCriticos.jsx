@@ -1,10 +1,17 @@
 import { Link } from 'react-router-dom';
-import { obtenerProductosCriticos, nombreCategoria, obtenerSesion } from '../../data/db';
+import { obtenerProductosCriticos } from '../../data/db';
+import { useSesion } from '../../context/SesionContext';
+import { useCargar } from '../../data/useCargar';
+import Cargando, { ErrorCarga } from '../../components/Cargando';
+
 import { estadoStock } from '../../utils/formato';
 
 export default function AdminProductosCriticos() {
-  const esAdmin = obtenerSesion()?.rol === 'Administrador';
-  const criticos = obtenerProductosCriticos().sort((a, b) => Number(a.stock) - Number(b.stock));
+  const esAdmin = useSesion().sesion?.rol === 'Administrador';
+  const { datos, error, recargar } = useCargar(() => obtenerProductosCriticos(), []);
+  if (error) return <ErrorCarga error={error} onReintentar={recargar} />;
+  if (!datos) return <Cargando />;
+  const criticos = [...datos].sort((a, b) => Number(a.stock) - Number(b.stock));
 
   return (
     <>
@@ -45,7 +52,7 @@ export default function AdminProductosCriticos() {
                     <tr key={p.id}>
                       <td>{p.codigo}</td>
                       <td>{p.nombre}</td>
-                      <td>{nombreCategoria(p.categoriaId)}</td>
+                      <td>{p.categoria}</td>
                       <td className="text-center fw-bold">{p.stock}</td>
                       <td className="text-center">{p.stockCritico}</td>
                       <td><span className={`badge ${estado.clase}`}>{estado.texto}</span></td>

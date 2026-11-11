@@ -1,11 +1,18 @@
 import { Link, useParams } from 'react-router-dom';
-import { buscarProductoPorId, nombreCategoria, esOferta, precioFinal, obtenerSesion } from '../../data/db';
+import { buscarProductoPorId, esOferta, precioFinal } from '../../data/db';
+import { useSesion } from '../../context/SesionContext';
+import { useCargar } from '../../data/useCargar';
+import Cargando, { ErrorCarga } from '../../components/Cargando';
+
 import { formatoCLP, etiquetaPrecio, estadoStock } from '../../utils/formato';
 
 export default function AdminProductoDetalle() {
   const { id } = useParams();
-  const producto = buscarProductoPorId(id);
-  const esAdmin = obtenerSesion()?.rol === 'Administrador';
+  const esAdmin = useSesion().sesion?.rol === 'Administrador';
+  const { datos: producto, cargando, error, recargar } = useCargar(() => buscarProductoPorId(id), [id]);
+
+  if (error) return <ErrorCarga error={error} onReintentar={recargar} />;
+  if (cargando && !producto) return <Cargando />;
 
   if (!producto) {
     return (
@@ -47,7 +54,7 @@ export default function AdminProductoDetalle() {
               <dd className="col-sm-8">{producto.codigo}</dd>
 
               <dt className="col-sm-4">Categoría</dt>
-              <dd className="col-sm-8">{nombreCategoria(producto.categoriaId)}</dd>
+              <dd className="col-sm-8">{producto.categoria}</dd>
 
               <dt className="col-sm-4">Descripción</dt>
               <dd className="col-sm-8">{producto.descripcion || <span className="text-muted">Sin descripción</span>}</dd>

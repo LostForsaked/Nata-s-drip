@@ -1,13 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import App from '../App';
-import {
-  crearOrden,
-  iniciarDB,
-  iniciarSesion,
-  obtenerUsuarios,
-} from '../data/db';
 import Pendiente from '../pages/admin/Pendiente';
+import { instalarApiFalsa, USUARIOS } from './apiFalsa';
 
 const PAGINAS = [
   ['Inicio', '/'],
@@ -41,68 +36,53 @@ const PAGINAS = [
   ['Página no encontrada', '/ruta-inexistente'],
 ];
 
-function crearOrdenDePrueba(estado) {
-  return crearOrden({
-    estado,
-    cliente: {
-      nombre: 'Cliente',
-      apellidos: 'De prueba',
-      correo: 'cliente@gmail.com',
-    },
-    direccion: {
-      calle: 'Calle de prueba 123',
-      departamento: '',
-      region: 'Región Metropolitana de Santiago',
-      comuna: 'Santiago',
-      indicaciones: '',
-    },
-    items: [
-      {
-        productoId: 1,
-        nombre: 'Afraid of Women',
-        imagen: '/img/poleraLobo.avif',
-        precioUnitario: 14990,
-        cantidad: 1,
-        subtotal: 14990,
-      },
-    ],
-    subtotal: 14990,
-    descuento: 0,
-    total: 14990,
-  });
-}
-
 beforeEach(() => {
-  localStorage.clear();
-  iniciarDB();
-  iniciarSesion(obtenerUsuarios()[0]);
-  crearOrdenDePrueba('Pagada');
-  crearOrdenDePrueba('Pago fallido');
+  // Sesión de administrador y datos de ejemplo servidos por una API falsa (sin MySQL)
+  instalarApiFalsa({ usuario: USUARIOS.admin });
   window.history.replaceState({}, '', '/');
   window.scrollTo = () => {};
 });
 
 afterEach(() => {
   cleanup();
+  vi.unstubAllGlobals();
 });
 
 describe('Smoke tests de las páginas', () => {
-  it.each(PAGINAS)('renderiza %s en %s', (_nombre, ruta) => {
+  // Los datos llegan de la API, así que se espera a que termine de cargar
+  it.each(PAGINAS)('renderiza %s en %s', async (_nombre, ruta) => {
     window.history.replaceState({}, '', ruta);
     const { container } = render(<App />);
 
+    await waitFor(() => {
+      expect(container.querySelector('h1, h2, h3, h4, h5, h6, legend')).not.toBeNull();
+    });
     expect(container.textContent.trim()).not.toBe('');
-    expect(container.querySelector('h1, h2, h3, h4, h5, h6, legend')).not.toBeNull();
   });
 
-  it('permite que un cliente abra su perfil desde el menú de cuenta', () => {
-    const cliente = obtenerUsuarios().find((usuario) => usuario.rol === 'Cliente');
-    iniciarSesion(cliente);
+  it('redirige al login si alguien sin sesión intenta abrir el panel de administración', async () => {
+    instalarApiFalsa({ usuario: null });
+    window.history.replaceState({}, '', '/admin/productos');
+    render(<App />);
+
+    await waitFor(() => expect(window.location.pathname).toBe('/login'));
+  });
+
+  it('no deja entrar al panel a un cliente', async () => {
+    instalarApiFalsa({ usuario: USUARIOS.cliente });
+    window.history.replaceState({}, '', '/admin');
+    render(<App />);
+
+    await waitFor(() => expect(window.location.pathname).toBe('/'));
+  });
+
+  it('permite que un cliente abra su perfil desde el menú de cuenta', async () => {
+    instalarApiFalsa({ usuario: USUARIOS.cliente });
     window.history.replaceState({}, '', '/perfil');
 
     render(<App />);
 
-    expect(screen.getByRole('heading', { name: 'Mi perfil' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'Mi perfil' })).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Mis datos' })).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Mi perfil' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Guardar cambios' })).toBeTruthy();

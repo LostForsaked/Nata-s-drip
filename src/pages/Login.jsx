@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  validarCorreo, 
-  validarPassword, 
-  buscarUsuarioPorCorreo 
-} from '../utils/validaciones';
+import { validarCorreo, validarPassword } from '../utils/validaciones';
 import { iniciarSesion } from '../data/db';
+import { useSesion } from '../context/SesionContext';
 
 function Login() {
   const navigate = useNavigate();
+  const { establecerSesion } = useSesion();
 
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
@@ -18,7 +16,7 @@ function Login() {
     password: ''
   });
 
-  const handleSubmit = (evento) => {
+  const handleSubmit = async (evento) => {
     evento.preventDefault();
     let formularioValido = true;
     let nuevosErrores = { correo: '', password: '' };
@@ -38,26 +36,22 @@ function Login() {
     setErrores(nuevosErrores);
 
     if (formularioValido) {
-      // Buscar usuario en el localStorage mediante la utilidad
-      const usuario = buscarUsuarioPorCorreo(correo);
-
-      if (!usuario || usuario.password !== password) {
-        setErrores((prev) => ({
-          ...prev,
-          password: "Correo o contraseña incorrectos."
-        }));
-      } else {
-        // Guardar sesión en el localStorage
-        iniciarSesion(usuario);
+      try {
+        // El servidor compara la contraseña con el hash guardado en MySQL
+        // y deja la sesión iniciada en una cookie httpOnly.
+        const usuario = await iniciarSesion(correo, password);
+        establecerSesion(usuario);
 
         alert(`¡Bienvenido/a ${usuario.nombre}! Sesión iniciada correctamente.`);
 
         // Redirección condicional con React Router
         if (usuario.rol === "Administrador" || usuario.rol === "Vendedor") {
-          navigate("/admin"); // O la ruta de panel de administración que definas
+          navigate("/admin");
         } else {
-          navigate("/"); // Redirige al inicio/tienda
+          navigate("/");
         }
+      } catch (err) {
+        setErrores((prev) => ({ ...prev, password: err.message }));
       }
     }
   };

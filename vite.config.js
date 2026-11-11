@@ -8,8 +8,12 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] }),
   ],
+  server: {
+    // En desarrollo, las llamadas a /api se envían al servidor Express (puerto 3001)
+    proxy: { '/api': 'http://localhost:3001' },
+  },
   test: {
     environment: 'jsdom',
-    exclude: [...configDefaults.exclude, 'src/tests/**/*.karma.spec.jsx'],
+    exclude: [...configDefaults.exclude, 'src/tests/**/*.karma.spec.jsx', 'server/tests/**'],
   },
 })

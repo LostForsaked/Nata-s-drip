@@ -5,14 +5,15 @@ import { agregarAlCarritoGlobal } from '../utils/cardLogic';
 import {
   obtenerProductos,
   buscarProductoPorId,
-  nombreCategoria,
   esOferta,
   precioFinal,
 } from '../data/db';
+import { useCargar } from '../data/useCargar';
+import Cargando, { ErrorCarga } from '../components/Cargando';
 import { formatoCLP, etiquetaPrecio } from '../utils/formato';
 
 
-function DetalleProducto({ producto }) {
+function DetalleProducto({ producto, productos }) {
   const [cantidad, setCantidad] = useState(1);
   const [mensaje, setMensaje] = useState(null);
 
@@ -20,12 +21,18 @@ function DetalleProducto({ producto }) {
   const agotado = stock <= 0;
   const oferta = esOferta(producto);
 
-  const relacionados = obtenerProductos()
+  const relacionados = productos
     .filter((p) => String(p.categoriaId) === String(producto.categoriaId) && p.id !== producto.id)
     .slice(0, 4);
 
-  const handleAgregar = () => {
-    const resultado = agregarAlCarritoGlobal(producto.id, cantidad);
+  const handleAgregar = async () => {
+    let resultado;
+    try {
+      resultado = await agregarAlCarritoGlobal(producto.id, cantidad);
+    } catch (err) {
+      setMensaje({ tipo: 'danger', texto: err.message });
+      return;
+    }
     if (!resultado.ok) {
       setMensaje({ tipo: 'danger', texto: 'Este producto no tiene stock disponible.' });
     } else if (resultado.limitadoPorStock) {
@@ -50,7 +57,7 @@ function DetalleProducto({ producto }) {
           <li className="breadcrumb-item"><Link to="/productos" className="text-decoration-none">Productos</Link></li>
           <li className="breadcrumb-item">
             <Link to={`/categorias?cat=${producto.categoriaId}`} className="text-decoration-none">
-              {nombreCategoria(producto.categoriaId)}
+              {producto.categoria}
             </Link>
           </li>
           <li className="breadcrumb-item active" aria-current="page">{producto.nombre}</li>
@@ -71,7 +78,7 @@ function DetalleProducto({ producto }) {
 
         <div className="col-lg-6 d-flex flex-column justify-content-center">
           <span className="badge text-bg-secondary align-self-start mb-2">
-            {nombreCategoria(producto.categoriaId)}
+            {producto.categoria}
           </span>
           <h2 className="fw-bold text-dark mb-2">{producto.nombre}</h2>
 
@@ -165,7 +172,14 @@ function Detalles() {
     window.scrollTo(0, 0);
   }, [id]);
 
-  const producto = id ? buscarProductoPorId(id) : null;
+  const { datos, error, recargar } = useCargar(
+    () => (id ? Promise.all([buscarProductoPorId(id), obtenerProductos()]) : Promise.resolve([null, []])),
+    [id]
+  );
+  if (error) return <ErrorCarga error={error} onReintentar={recargar} />;
+  if (!datos) return <Cargando />;
+
+  const [producto, productos] = datos;
 
   if (!producto) {
     return (
@@ -182,7 +196,7 @@ function Detalles() {
     );
   }
 
-  return <DetalleProducto key={producto.id} producto={producto} />;
+  return <DetalleProducto key={producto.id} producto={producto} productos={productos} />;
 }
 
 export default Detalles;

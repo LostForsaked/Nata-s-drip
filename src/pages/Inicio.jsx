@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import { Carousel } from 'react-bootstrap';
 import TarjetaProducto from '../components/TarjetaProducto';
 import { obtenerProductos, obtenerCategorias, esOferta } from '../data/db';
+import { useCargar } from '../data/useCargar';
+import Cargando, { ErrorCarga } from '../components/Cargando';
 
 const SLIDES = [
   { img: '/img/catmeme.png', titulo: 'Nuevos lanzamientos', texto: 'Descubre las últimas poleras de la colección' },
@@ -10,8 +12,14 @@ const SLIDES = [
 ];
 
 function Inicio() {
-  const productos = obtenerProductos();
-  const categorias = obtenerCategorias();
+  const { datos, cargando, error, recargar } = useCargar(
+    () => Promise.all([obtenerProductos(), obtenerCategorias()]),
+    []
+  );
+  if (error) return <ErrorCarga error={error} onReintentar={recargar} />;
+  if (!datos) return <Cargando />;
+
+  const [productos, categorias] = datos;
   const ofertas = productos.filter(esOferta).slice(0, 4);
   const destacados = productos.slice(0, 8);
 

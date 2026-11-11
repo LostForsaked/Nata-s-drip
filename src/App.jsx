@@ -1,8 +1,10 @@
+
 import { BrowserRouter, Routes, Route, Outlet, Link } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import RutaProtegida from "./components/RutaProtegida";
+import { SesionProvider } from "./context/SesionContext";
 
 import Inicio from "./pages/Inicio";
 import Productos from "./pages/Productos";
@@ -28,14 +30,13 @@ import AdminUsuariosNuevo from "./pages/admin/AdminUsuariosNuevo";
 import AdminProductosCriticos from "./pages/admin/AdminProductosCriticos";
 import AdminProductoDetalle from "./pages/admin/AdminProductoDetalle";
 import AdminProductoForm from "./pages/admin/AdminProductoForm";
-
 import AdminOrdenes from "./pages/admin/AdminOrdenes";
 import AdminBoleta from "./pages/admin/AdminBoleta";
 import AdminCategorias from "./pages/admin/AdminCategorias";
 import AdminReportes from "./pages/admin/AdminReportes";
 import AdminPerfil from "./pages/admin/AdminPerfil";
 
-// Layout de la tienda pública: Navbar + contenido de la ruta + Footer
+// Layout de la tienda pública
 function LayoutTienda() {
   return (
     <>
@@ -46,12 +47,15 @@ function LayoutTienda() {
   );
 }
 
+// Página 404
 function NoEncontrado() {
   return (
     <main className="container my-5 text-center">
       <h1 className="display-4 fw-bold">404</h1>
       <p className="lead">La página que buscas no existe.</p>
-      <Link to="/" className="btn btn-dark">Volver al inicio</Link>
+      <Link to="/" className="btn btn-dark">
+        Volver al inicio
+      </Link>
     </main>
   );
 }
@@ -275,59 +279,84 @@ export default function App() {
         }
       `}</style>
 
-      <BrowserRouter>
-        <Routes>
-          {/* ---------- Tienda (pública) ---------- */}
-          <Route element={<LayoutTienda />}>
-            <Route path="/" element={<Inicio />} />
-            <Route path="/productos" element={<Productos />} />
-            <Route path="/categorias" element={<Categorias />} />
-            <Route path="/ofertas" element={<Ofertas />} />
-            <Route path="/detalles" element={<Detalles />} />
+      <SesionProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Tienda pública */}
+            <Route element={<LayoutTienda />}>
+              <Route path="/" element={<Inicio />} />
+              <Route path="/productos" element={<Productos />} />
+              <Route path="/categorias" element={<Categorias />} />
+              <Route path="/ofertas" element={<Ofertas />} />
+              <Route path="/detalles" element={<Detalles />} />
+              <Route path="/carrito" element={<Carrito />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/compra-exitosa" element={<CompraExitosa />} />
+              <Route path="/compra-fallida" element={<CompraFallida />} />
+              <Route path="/blogs" element={<Blogs />} />
+              <Route path="/blogs/:id" element={<DetalleBlog />} />
+              <Route path="/contacto" element={<Contacto />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/registro" element={<Registro />} />
+              <Route path="/nosotros" element={<Nosotros />} />
 
-            <Route path="/carrito" element={<Carrito />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/compra-exitosa" element={<CompraExitosa />} />
-            <Route path="/compra-fallida" element={<CompraFallida />} />
-
-            <Route path="/blogs" element={<Blogs />} />
-            <Route path="/blogs/:id" element={<DetalleBlog />} />
-
-            <Route path="/contacto" element={<Contacto />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/registro" element={<Registro />} />
-            <Route path="/nosotros" element={<Nosotros />} />
-            <Route element={<RutaProtegida roles={["Cliente"]} />}>
-              <Route path="/perfil" element={<AdminPerfil />} />
+              {/* Perfil del cliente */}
+              <Route element={<RutaProtegida roles={["Cliente"]} />}>
+                <Route path="/perfil" element={<AdminPerfil />} />
+              </Route>
             </Route>
-          </Route>
-       <Route element={<RutaProtegida roles={["Administrador", "Vendedor"]} />}>
-  <Route path="/admin" element={<AdminLayout />}>
-    <Route index element={<AdminHome />} />
 
-    {/* Administrador y Vendedor: solo lectura */}
-    <Route path="productos" element={<AdminProductos />} />
-    <Route path="productos/criticos" element={<AdminProductosCriticos />} />
-    <Route path="productos/:id" element={<AdminProductoDetalle />} />
-    <Route path="ordenes" element={<AdminOrdenes />} />
-    <Route path="ordenes/:id" element={<AdminBoleta />} />
-    <Route path="perfil" element={<AdminPerfil />} />
+            {/* Panel de administración */}
+            <Route
+              element={
+                <RutaProtegida roles={["Administrador", "Vendedor"]} />
+              }
+            >
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminHome />} />
 
-    {/* Solo Administrador */}
-    <Route element={<RutaProtegida roles={["Administrador"]} />}>
-      <Route path="productos/nuevo" element={<AdminProductoForm />} />
-      <Route path="productos/:id/editar" element={<AdminProductoForm />} />
-      <Route path="categorias" element={<AdminCategorias />} />
-      <Route path="usuarios" element={<AdminUsuarios />} />
-      <Route path="usuarios/nuevo" element={<AdminUsuariosNuevo />} />
-      <Route path="reportes" element={<AdminReportes />} />
-    </Route>
-  </Route>
-</Route>
+                {/* Administrador y Vendedor: solo lectura */}
+                <Route path="productos" element={<AdminProductos />} />
+                <Route
+                  path="productos/criticos"
+                  element={<AdminProductosCriticos />}
+                />
+                <Route
+                  path="productos/:id"
+                  element={<AdminProductoDetalle />}
+                />
+                <Route path="ordenes" element={<AdminOrdenes />} />
+                <Route path="ordenes/:id" element={<AdminBoleta />} />
+                <Route path="perfil" element={<AdminPerfil />} />
 
-          <Route path="*" element={<NoEncontrado />} />
-        </Routes>
-      </BrowserRouter>
+                {/* Solo Administrador */}
+                <Route
+                  element={<RutaProtegida roles={["Administrador"]} />}
+                >
+                  <Route
+                    path="productos/nuevo"
+                    element={<AdminProductoForm />}
+                  />
+                  <Route
+                    path="productos/:id/editar"
+                    element={<AdminProductoForm />}
+                  />
+                  <Route path="categorias" element={<AdminCategorias />} />
+                  <Route path="usuarios" element={<AdminUsuarios />} />
+                  <Route
+                    path="usuarios/nuevo"
+                    element={<AdminUsuariosNuevo />}
+                  />
+                  <Route path="reportes" element={<AdminReportes />} />
+                </Route>
+              </Route>
+            </Route>
+
+            {/* Página no encontrada */}
+            <Route path="*" element={<NoEncontrado />} />
+          </Routes>
+        </BrowserRouter>
+      </SesionProvider>
     </>
   );
 }

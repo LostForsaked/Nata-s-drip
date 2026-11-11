@@ -1,9 +1,15 @@
 import TarjetaProducto from '../components/TarjetaProducto';
 import { obtenerProductos, esOferta } from '../data/db';
+import { useCargar } from '../data/useCargar';
+import Cargando, { ErrorCarga } from '../components/Cargando';
 
 export default function Ofertas() {
+  const { datos, error, recargar } = useCargar(() => obtenerProductos(), []);
+  if (error) return <ErrorCarga error={error} onReintentar={recargar} />;
+  if (!datos) return <Cargando />;
+
   // Mayor descuento primero
-  const ofertas = obtenerProductos()
+  const ofertas = datos
     .filter(esOferta)
     .sort((a, b) => Number(b.descuento) - Number(a.descuento));
 

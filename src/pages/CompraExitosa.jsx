@@ -2,12 +2,18 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import ResumenOrden from '../components/ResumenOrden';
 import { buscarOrdenPorId } from '../data/db';
+import { useCargar } from '../data/useCargar';
+import Cargando, { ErrorCarga } from '../components/Cargando';
 import { formatoFecha } from '../utils/formato';
 
 export default function CompraExitosa() {
   const [params] = useSearchParams();
-  const orden = buscarOrdenPorId(params.get('orden'));
+  const ordenId = params.get('orden');
+  const { datos: orden, cargando, error, recargar } = useCargar(() => buscarOrdenPorId(ordenId), [ordenId]);
   const [emailEnviado, setEmailEnviado] = useState(false);
+
+  if (error) return <ErrorCarga error={error} onReintentar={recargar} />;
+  if (cargando && !orden) return <Cargando />;
 
   if (!orden || orden.estado !== 'Pagada') {
     return (

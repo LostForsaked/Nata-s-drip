@@ -1,5 +1,6 @@
 import {Link, NavLink, Outlet, useNavigate} from 'react-router-dom';
-import { obtenerSesion, cerrarSesion } from '../../data/db';
+import { cerrarSesion } from '../../data/db';
+import { useSesion } from '../../context/SesionContext';
 
 const TODOS = ['Administrador', 'Vendedor'];
 
@@ -14,10 +15,11 @@ const MENU = [
 
 export default function AdminLayout(){
     const navigate = useNavigate();
-    const sesion = obtenerSesion();
+    const { sesion, establecerSesion } = useSesion();
 
-    const handleLogout = () => {
-        cerrarSesion();
+    const handleLogout = async () => {
+        await cerrarSesion();
+        establecerSesion(null);
         navigate('/login');
     };
 

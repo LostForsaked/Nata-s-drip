@@ -17,3 +17,11 @@ You can also try [the experimental native React Compiler support in plugin-react
 ## Expanding the Oxlint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+
+## Base de datos (MySQL)
+
+La tienda guarda todo en MySQL en vez de `localStorage`. Guía completa con los pasos
+de MySQL Workbench en [`docs/base-de-datos-mysql.md`](docs/base-de-datos-mysql.md).
+
+Resumen: ejecuta `database/01_schema.sql` y `database/02_seed.sql` en Workbench,
+copia `.env.example` a `.env` con tu contraseña de MySQL y corre `npm run dev:all`.

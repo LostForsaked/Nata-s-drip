@@ -4,22 +4,30 @@ import ModalConfirmar from '../../components/ModalConfirmar';
 import {
   obtenerProductos,
   obtenerCategorias,
-  obtenerProductosCriticos,
-  nombreCategoria,
   eliminarProducto,
-  obtenerSesion,
 } from '../../data/db';
+import { useSesion } from '../../context/SesionContext';
+import { useCargar } from '../../data/useCargar';
+import Cargando, { ErrorCarga } from '../../components/Cargando';
+
 import { formatoCLP, estadoStock } from '../../utils/formato';
 
 export default function AdminProductos() {
   const location = useLocation();
-  const esAdmin = obtenerSesion()?.rol === 'Administrador'; // el Vendedor solo puede ver
+  const esAdmin = useSesion().sesion?.rol === 'Administrador'; // el Vendedor solo puede ver
 
-  const [productos, setProductos] = useState(() => obtenerProductos());
+  const { datos, error, recargar } = useCargar(
+    () => Promise.all([obtenerProductos(), obtenerCategorias()]),
+    []
+  );
   const [mensaje, setMensaje] = useState(location.state?.mensaje || '');
   const [q, setQ] = useState('');
   const [cat, setCat] = useState('');
   const [aEliminar, setAEliminar] = useState(null);
+
+  if (error) return <ErrorCarga error={error} onReintentar={recargar} />;
+  if (!datos) return <Cargando />;
+  const [productos, categorias] = datos;
 
   const texto = q.trim().toLowerCase();
   const filtrados = productos.filter(
@@ -28,15 +36,21 @@ export default function AdminProductos() {
       (!cat || String(p.categoriaId) === cat)
   );
 
-  const cantidadCriticos = obtenerProductosCriticos().length;
+  const cantidadCriticos = productos.filter(
+    (p) => p.stockCritico !== '' && p.stockCritico !== null && Number(p.stock) <= Number(p.stockCritico)
+  ).length;
 
-  const confirmarEliminar = () => {
+  const confirmarEliminar = async () => {
     if (!aEliminar) return;
 
-    eliminarProducto(aEliminar.id);
-    setProductos(obtenerProductos());
-    setMensaje(`Producto "${aEliminar.nombre}" eliminado.`);
+    try {
+      await eliminarProducto(aEliminar.id);
+      setMensaje(`Producto "${aEliminar.nombre}" eliminado.`);
+    } catch (err) {
+      setMensaje(err.message);
+    }
     setAEliminar(null);
+    recargar();
   };
 
   return (
@@ -76,7 +90,7 @@ export default function AdminProductos() {
         <div className="col-12 col-md-4">
           <select className="form-select" value={cat} onChange={(e) => setCat(e.target.value)}>
             <option value="">Todas las categorías</option>
-            {obtenerCategorias().map((c) => (
+            {categorias.map((c) => (
               <option key={c.id} value={c.id}>{c.nombre}</option>
             ))}
           </select>
@@ -116,7 +130,7 @@ export default function AdminProductos() {
                       {p.nombre}
                       {Number(p.descuento) > 0 && <span className="badge bg-danger ms-2">-{p.descuento}%</span>}
                     </td>
-                    <td>{nombreCategoria(p.categoriaId)}</td>
+                    <td>{p.categoria}</td>
                     <td className="text-end">{formatoCLP(p.precio)}</td>
                     <td className="text-center">{p.stock}</td>
                     <td><span className={`badge ${estado.clase}`}>{estado.texto}</span></td>

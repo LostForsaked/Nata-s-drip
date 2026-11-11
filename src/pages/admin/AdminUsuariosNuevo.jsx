@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { validarRequerido, validarCorreo } from '../../utils/validaciones';
+import { validarRequerido, validarCorreo, validarPassword } from '../../utils/validaciones';
+import { crearUsuario } from '../../data/db';
 
 export default function AdminUsuariosNuevo() {
   const [nombre, setNombre] = useState('');
@@ -9,7 +10,7 @@ export default function AdminUsuariosNuevo() {
   const [rol, setRol] = useState('Vendedor');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validaciones
@@ -23,26 +24,26 @@ export default function AdminUsuariosNuevo() {
       return;
     }
 
-    if (!validarRequerido(password)) {
-      alert("La contraseña no puede estar vacía.");
+    if (!validarPassword(password)) {
+      alert("La contraseña debe tener entre 4 y 10 caracteres.");
       return;
     }
 
-    // Obtener usuarios actuales del localStorage
-    const usuariosGuardados = localStorage.getItem("tienda_usuarios");
-    let usuarios = usuariosGuardados ? JSON.parse(usuariosGuardados) : [];
+    // El nombre completo se separa: primera palabra = nombre, el resto = apellidos
+    const [primero, ...resto] = nombre.trim().split(/\s+/);
 
-    // Crear nuevo usuario
-    const nuevoUsuario = {
-      id: Date.now(),
-      nombre: nombre.trim(),
-      email: email.trim(),
-      password: password,
-      rol: rol
-    };
-
-    usuarios.push(nuevoUsuario);
-    localStorage.setItem("tienda_usuarios", JSON.stringify(usuarios));
+    try {
+      await crearUsuario({
+        nombre: primero,
+        apellidos: resto.join(' '),
+        correo: email.trim(),
+        password,
+        rol,
+      });
+    } catch (err) {
+      alert(err.message);
+      return;
+    }
 
     alert("¡Usuario registrado con éxito!");
     navigate('/admin/usuarios');

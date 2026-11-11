@@ -1,11 +1,14 @@
 import { Link } from 'react-router-dom';
 import {
-  obtenerSesion,
   obtenerProductos,
   obtenerProductosCriticos,
   obtenerUsuarios,
   obtenerOrdenes,
 } from '../../data/db';
+import { useSesion } from '../../context/SesionContext';
+import { useCargar } from '../../data/useCargar';
+import Cargando, { ErrorCarga } from '../../components/Cargando';
+
 import { formatoCLP } from '../../utils/formato';
 
 const TODOS = ['Administrador', 'Vendedor'];
@@ -20,12 +23,27 @@ const ACCESOS = [
 ];
 
 export default function AdminHome() {
-  const sesion = obtenerSesion();
+  const { sesion } = useSesion();
   const esAdmin = sesion?.rol === 'Administrador';
 
-  const pagadas = obtenerOrdenes().filter((o) => o.estado === 'Pagada');
+  const { datos, error, recargar } = useCargar(
+    async () => {
+      const [ordenes, productos, criticos, usuarios] = await Promise.all([
+        obtenerOrdenes(),
+        obtenerProductos(),
+        obtenerProductosCriticos(),
+        esAdmin ? obtenerUsuarios() : Promise.resolve([]), // solo el Administrador puede ver usuarios
+      ]);
+      return { ordenes, productos, criticos: criticos.length, usuarios };
+    },
+    [esAdmin]
+  );
+  if (error) return <ErrorCarga error={error} onReintentar={recargar} />;
+  if (!datos) return <Cargando />;
+
+  const pagadas = datos.ordenes.filter((o) => o.estado === 'Pagada');
   const totalVendido = pagadas.reduce((acc, o) => acc + Number(o.total), 0);
-  const criticos = obtenerProductosCriticos().length;
+  const criticos = datos.criticos;
 
   return (
     <>
@@ -59,7 +77,7 @@ export default function AdminHome() {
           <div className="card text-white bg-success border-0 rounded-4 h-100">
             <div className="card-body">
               <h2 className="h6 text-uppercase">Productos</h2>
-              <p className="display-6 fw-bold mb-1">{obtenerProductos().length}</p>
+              <p className="display-6 fw-bold mb-1">{datos.productos.length}</p>
               <small>Con stock crítico: {criticos}</small>
             </div>
           </div>
@@ -70,8 +88,8 @@ export default function AdminHome() {
             <div className="card text-dark bg-warning border-0 rounded-4 h-100">
               <div className="card-body">
                 <h2 className="h6 text-uppercase">Usuarios</h2>
-                <p className="display-6 fw-bold mb-1">{obtenerUsuarios().length}</p>
-                <small>Clientes: {obtenerUsuarios().filter((u) => u.rol === 'Cliente').length}</small>
+                <p className="display-6 fw-bold mb-1">{datos.usuarios.length}</p>
+                <small>Clientes: {datos.usuarios.filter((u) => u.rol === 'Cliente').length}</small>
               </div>
             </div>
           </div>

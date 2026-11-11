@@ -1,10 +1,12 @@
 import {useState} from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {regionesComunas} from '../data/regiones';
-import {obtenerSesion} from '../data/db';
-import {detalleCarrito, calcularTotales, cuponGuardado, CUPON } from '../utils/cardLogic';
+import {useSesion} from '../context/SesionContext';
+import {useCargar} from '../data/useCargar';
+import Cargando, {ErrorCarga} from '../components/Cargando';
+import {obtenerCarrito, calcularTotales} from '../utils/cardLogic';
 import {validarEnvio} from '../utils/validaciones';
-import {verificarStock, crearOrdenPendiente, aprobarPago, rechazarPago} from '../utils/pagos';
+import {crearOrdenPendiente, aprobarPago, rechazarPago} from '../utils/pagos';
 import {formatoCLP, etiquetaPrecio} from '../utils/formato';
 
 const DATOS_VACIOS = {
@@ -19,8 +21,7 @@ const DATOS_VACIOS = {
 };
 
 //obtener datos de la sesion
-function datosIniciales(){
-  const s= obtenerSesion();
+function datosIniciales(s){
   if (!s) return DATOS_VACIOS;
   return {
     ...DATOS_VACIOS,
@@ -33,15 +34,24 @@ function datosIniciales(){
   };
 }
 
+// Espera a tener el carrito (MySQL) y la sesión, y recién entonces arma el formulario
 export default function Checkout() {
+  const { sesion, cargando: cargandoSesion } = useSesion();
+  const { datos, error, recargar } = useCargar(() => obtenerCarrito(), []);
+
+  if (error) return <ErrorCarga error={error} onReintentar={recargar} />;
+  if (!datos || cargandoSesion) return <Cargando />;
+  return <FormularioCheckout carrito={datos} sesion={sesion} />;
+}
+
+function FormularioCheckout({ carrito, sesion }) {
   const navigate = useNavigate();
 
-  
-  const [items] = useState(() => detalleCarrito());
-  const [cuponAplicado] = useState(() => cuponGuardado());
-  const [conSesion] = useState(() => obtenerSesion() !== null);
+  const items = carrito.items;
+  const cupon = carrito.cupon;
+  const conSesion = sesion !== null;
 
-  const [datos, setDatos] = useState(datosIniciales);
+  const [datos, setDatos] = useState(() => datosIniciales(sesion));
   const [tocados, setTocados] = useState({});
   const [intento, setIntento] = useState(false);
   const [errorGeneral, setErrorGeneral] = useState('');
@@ -49,7 +59,7 @@ export default function Checkout() {
   const [resultadoSimulado, setResultadoSimulado] = useState('aprobado');
 
   const errores = validarEnvio(datos);
-  const totales = calcularTotales(items, cuponAplicado);
+  const totales = calcularTotales(items, cupon);
   const comunas = regionesComunas[datos.region] || [];
 
   const visible = (campo) => tocados[campo] || intento;
@@ -65,53 +75,53 @@ export default function Checkout() {
     setTocados((prev) => ({ ...prev, [name]: true }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIntento(true);
     setErrorGeneral('');
 
     if (Object.values(errores).some(Boolean)) return;
 
-    const problema = verificarStock(
-      items.map((i) => ({ productoId: i.id, nombre: i.nombre, cantidad: i.cantidad }))
-    );
-    if (problema) {
-      setErrorGeneral(problema);
+    setProcesando(true);
+
+    // El servidor arma la orden con el carrito y el cupón guardados en MySQL
+    // y revisa el stock (si falta, responde con el mensaje a mostrar).
+    let orden;
+    try {
+      orden = await crearOrdenPendiente({
+        cliente: {
+          nombre: datos.nombre.trim(),
+          apellidos: datos.apellidos.trim(),
+          correo: datos.correo.trim(),
+        },
+        direccion: {
+          calle: datos.calle.trim(),
+          departamento: datos.departamento.trim(),
+          region: datos.region,
+          comuna: datos.comuna,
+          indicaciones: datos.indicaciones.trim(),
+        },
+      });
+    } catch (err) {
+      setErrorGeneral(err.message);
+      setProcesando(false);
       return;
     }
 
-    const sesion = obtenerSesion();
-    const orden = crearOrdenPendiente({
-      cliente: {
-        nombre: datos.nombre.trim(),
-        apellidos: datos.apellidos.trim(),
-        correo: datos.correo.trim(),
-      },
-      direccion: {
-        calle: datos.calle.trim(),
-        departamento: datos.departamento.trim(),
-        region: datos.region,
-        comuna: datos.comuna,
-        indicaciones: datos.indicaciones.trim(),
-      },
-      items,
-      totales,
-      cuponAplicado,
-      usuarioId: sesion?.id,
-    });
-
-    setProcesando(true);
-
     // Simula el tiempo que tarda la pasarela de pago
-    setTimeout(() => {
-      if (resultadoSimulado === 'aprobado') {
-        const resultado = aprobarPago(orden.id);
-        if (resultado.ok) {
-          navigate(`/compra-exitosa?orden=${orden.id}`, { replace: true });
-          return;
+    setTimeout(async () => {
+      try {
+        if (resultadoSimulado === 'aprobado') {
+          const resultado = await aprobarPago(orden.id);
+          if (resultado.ok) {
+            navigate(`/compra-exitosa?orden=${orden.id}`, { replace: true });
+            return;
+          }
         }
+        await rechazarPago(orden.id);
+      } catch {
+        // si falla la conexión, igual se muestra la pantalla de pago fallido
       }
-      rechazarPago(orden.id);
       navigate(`/compra-fallida?orden=${orden.id}`, { replace: true });
     }, 1500);
   };
@@ -297,9 +307,9 @@ export default function Checkout() {
               <span>Subtotal</span>
               <span>{formatoCLP(totales.subtotal)}</span>
             </div>
-            {cuponAplicado && (
+            {cupon && (
               <div className="d-flex justify-content-between mb-2 text-success">
-                <span>Cupón {CUPON.codigo}</span>
+                <span>Cupón {cupon.codigo}</span>
                 <span>-{formatoCLP(totales.descuento)}</span>
               </div>
             )}

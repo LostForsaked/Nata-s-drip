@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { regionesComunas } from '../../data/regiones';
-import {
-  obtenerSesion, buscarUsuarioPorId, actualizarUsuario, iniciarSesion,
-} from '../../data/db';
+import { actualizarPerfil, cambiarPassword as cambiarPasswordApi } from '../../data/db';
+import { useSesion } from '../../context/SesionContext';
 import { validarRequerido, validarPassword } from '../../utils/validaciones';
 
 function Campo({ id, label, error, children }) {
@@ -16,7 +15,7 @@ function Campo({ id, label, error, children }) {
 }
 
 export default function AdminPerfil() {
-  const usuario = buscarUsuarioPorId(obtenerSesion()?.id);
+  const { sesion: usuario, establecerSesion } = useSesion();
 
   const [form, setForm] = useState(() => ({
     nombre: usuario?.nombre ?? '',
@@ -42,7 +41,7 @@ export default function AdminPerfil() {
 
   const claseInput = (err) => 'form-control ' + (err ? 'is-invalid' : '');
 
-  const guardarDatos = (e) => {
+  const guardarDatos = async (e) => {
     e.preventDefault();
     const err = {};
     if (!validarRequerido(form.nombre)) err.nombre = 'El nombre es obligatorio.';
@@ -55,30 +54,40 @@ export default function AdminPerfil() {
     setErrDatos(err);
     if (Object.keys(err).length) return;
 
-    actualizarUsuario(usuario.id, {
-      nombre: form.nombre.trim(),
-      apellidos: form.apellidos.trim(),
-      telefono: form.telefono.trim(),
-      region: form.region,
-      comuna: form.comuna,
-      direccion: form.direccion.trim(),
-    });
-    iniciarSesion(buscarUsuarioPorId(usuario.id)); // refresca la sesión (sin password)
-    setMensaje({ tipo: 'success', texto: 'Perfil actualizado.' });
+    try {
+      const actualizado = await actualizarPerfil({
+        nombre: form.nombre.trim(),
+        apellidos: form.apellidos.trim(),
+        telefono: form.telefono.trim(),
+        region: form.region,
+        comuna: form.comuna,
+        direccion: form.direccion.trim(),
+      });
+      establecerSesion(actualizado); // refresca el nombre que se muestra en la barra
+      setMensaje({ tipo: 'success', texto: 'Perfil actualizado.' });
+    } catch (error) {
+      setMensaje({ tipo: 'danger', texto: error.message });
+    }
   };
 
-  const cambiarPassword = (e) => {
+  const cambiarPassword = async (e) => {
     e.preventDefault();
     const err = {};
-    if (pass.actual !== usuario.password) err.actual = 'La contraseña actual no coincide.';
+    if (!pass.actual) err.actual = 'Ingresa tu contraseña actual.';
     if (!validarPassword(pass.nueva)) err.nueva = 'Debe tener entre 4 y 10 caracteres.';
     if (pass.nueva !== pass.repetir) err.repetir = 'Las contraseñas no coinciden.';
     setErrPass(err);
     if (Object.keys(err).length) return;
 
-    actualizarUsuario(usuario.id, { password: pass.nueva });
-    setPass({ actual: '', nueva: '', repetir: '' });
-    setMensaje({ tipo: 'success', texto: 'Contraseña actualizada.' });
+    try {
+      // El servidor compara la contraseña actual con el hash guardado en MySQL
+      await cambiarPasswordApi(pass.actual, pass.nueva);
+      setPass({ actual: '', nueva: '', repetir: '' });
+      setMensaje({ tipo: 'success', texto: 'Contraseña actualizada.' });
+    } catch (error) {
+      if (error.campo) setErrPass({ [error.campo]: error.message });
+      else setMensaje({ tipo: 'danger', texto: error.message });
+    }
   };
 
   return (

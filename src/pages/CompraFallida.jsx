@@ -2,14 +2,20 @@ import { useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import ResumenOrden from '../components/ResumenOrden';
 import { buscarOrdenPorId } from '../data/db';
+import { useCargar } from '../data/useCargar';
+import Cargando, { ErrorCarga } from '../components/Cargando';
 import { aprobarPago } from '../utils/pagos';
 
 export default function CompraFallida() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const orden = buscarOrdenPorId(params.get('orden'));
+  const ordenId = params.get('orden');
+  const { datos: orden, cargando, error: errorCarga, recargar } = useCargar(() => buscarOrdenPorId(ordenId), [ordenId]);
   const [procesando, setProcesando] = useState(false);
   const [error, setError] = useState('');
+
+  if (errorCarga) return <ErrorCarga error={errorCarga} onReintentar={recargar} />;
+  if (cargando && !orden) return <Cargando />;
 
   if (!orden) {
     return (
@@ -28,8 +34,8 @@ export default function CompraFallida() {
   const reintentarPago = () => {
     setError('');
     setProcesando(true);
-    setTimeout(() => {
-      const resultado = aprobarPago(orden.id);
+    setTimeout(async () => {
+      const resultado = await aprobarPago(orden.id);
       if (resultado.ok) {
         navigate(`/compra-exitosa?orden=${orden.id}`, { replace: true });
       } else {

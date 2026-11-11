@@ -1,9 +1,18 @@
 import { useSearchParams } from "react-router-dom";
 import TarjetaProducto from '../components/TarjetaProducto';
 import { obtenerProductos, obtenerCategorias, precioFinal } from "../data/db";
+import { useCargar } from "../data/useCargar";
+import Cargando, { ErrorCarga } from "../components/Cargando";
 
 function Productos(){
   const [params, setParams] = useSearchParams();
+  const { datos, error, recargar } = useCargar(
+    () => Promise.all([obtenerProductos(), obtenerCategorias()]),
+    []
+  );
+  if (error) return <ErrorCarga error={error} onReintentar={recargar} />;
+  if (!datos) return <Cargando />;
+  const [productos, categorias] = datos;
 
   const q = params.get('q') || '';
   const cat = params.get('cat') || '';
@@ -18,7 +27,7 @@ function Productos(){
 
   const texto = q.trim().toLowerCase();
 
-  let lista = obtenerProductos().filter((p) => {
+  let lista = productos.filter((p) => {
     const coincideTexto =
       !texto ||
       p.nombre.toLowerCase().includes(texto) ||
@@ -52,7 +61,7 @@ function Productos(){
         <div className="col-6 col-md-3">
           <select className="form-select category-filter" value={cat} onChange={(e) => actualizarFiltro('cat', e.target.value)}>
             <option value="">Todas las categorías</option>
-            {obtenerCategorias().map((c) => (
+            {categorias.map((c) => (
               <option key={c.id} value={c.id}>{c.nombre}</option>
             ))}
           </select>

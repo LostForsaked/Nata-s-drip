@@ -1,6 +1,7 @@
-import {
-  obtenerOrdenes, obtenerProductosCriticos, buscarProductoPorId, nombreCategoria,
-} from '../../data/db';
+import { obtenerOrdenes, obtenerProductos, obtenerProductosCriticos } from '../../data/db';
+import { useCargar } from '../../data/useCargar';
+import Cargando, { ErrorCarga } from '../../components/Cargando';
+
 import { resumenVentas, ventasPorProducto, ventasPorCategoria } from '../../utils/reportes';
 import { formatoCLP } from '../../utils/formato';
 
@@ -18,12 +19,19 @@ function Tarjeta({ titulo, valor, clase }) {
 }
 
 export default function AdminReportes() {
-  const ordenes = obtenerOrdenes();
+  const { datos, error, recargar } = useCargar(
+    () => Promise.all([obtenerOrdenes(), obtenerProductos(), obtenerProductosCriticos()]),
+    []
+  );
+  if (error) return <ErrorCarga error={error} onReintentar={recargar} />;
+  if (!datos) return <Cargando />;
+
+  const [ordenes, catalogo, criticos] = datos;
+  const categoriaDe = new Map(catalogo.map((p) => [p.id, p.categoria]));
+
   const resumen = resumenVentas(ordenes);
   const productos = ventasPorProducto(ordenes);
-  const categorias = ventasPorCategoria(ordenes, (id) =>
-    nombreCategoria(buscarProductoPorId(id)?.categoriaId)
-  );
+  const categorias = ventasPorCategoria(ordenes, (id) => categoriaDe.get(id) ?? 'Sin categoría');
 
   return (
     <>
@@ -33,7 +41,7 @@ export default function AdminReportes() {
         <Tarjeta titulo="Total vendido" valor={formatoCLP(resumen.totalVendido)} clase="bg-primary" />
         <Tarjeta titulo="Compras pagadas" valor={resumen.cantidadPagadas} clase="bg-success" />
         <Tarjeta titulo="Ticket promedio" valor={formatoCLP(resumen.ticketPromedio)} clase="bg-info" />
-        <Tarjeta titulo="Productos críticos" valor={obtenerProductosCriticos().length} clase="bg-warning" />
+        <Tarjeta titulo="Productos críticos" valor={criticos.length} clase="bg-warning" />
       </div>
 
       <p className="text-secondary">
@@ -50,7 +58,7 @@ export default function AdminReportes() {
               </thead>
               <tbody>
                 {productos.slice(0, 10).map((p) => (
-                  <tr key={p.productoId}>
+                  <tr key={p.productoId ?? `nombre-${p.nombre}`}>
                     <td>{p.nombre}</td><td>{p.unidades}</td><td>{formatoCLP(p.ingresos)}</td>
                   </tr>
                 ))}

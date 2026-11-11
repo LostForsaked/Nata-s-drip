@@ -1,34 +1,34 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { detalleCarrito } from '../utils/cardLogic';
-import { obtenerSesion, cerrarSesion } from '../data/db';
+import { cerrarSesion } from '../data/db';
+import { useSesion } from '../context/SesionContext';
 
 function Navbar() {
   const navigate = useNavigate();
   const [cantidad, setCantidad] = useState(0);
   const [total, setTotal] = useState(0);
-  const [sesion, setSesion] = useState(() => obtenerSesion());
+  const { sesion } = useSesion();
   const [busqueda, setBusqueda] = useState('');
 
+  // El carrito vive en MySQL: se vuelve a consultar cada vez que algo cambia en la base
   useEffect(() => {
+    let activo = true;
     const actualizar = () => {
-      const items = detalleCarrito();
-      setCantidad(items.reduce((acc, i) => acc + i.cantidad, 0));
-      setTotal(items.reduce((acc, i) => acc + i.subtotal, 0));
-      setSesion(obtenerSesion());
+      detalleCarrito()
+        .then((items) => {
+          if (!activo) return;
+          setCantidad(items.reduce((acc, i) => acc + i.cantidad, 0));
+          setTotal(items.reduce((acc, i) => acc + i.subtotal, 0));
+        })
+        .catch(() => {});
     };
 
     actualizar();
-    window.addEventListener('carritoActualizado', actualizar);
-    window.addEventListener('sesionActualizada', actualizar);
     window.addEventListener('dbActualizada', actualizar);
-    window.addEventListener('storage', actualizar);
-
     return () => {
-      window.removeEventListener('carritoActualizado', actualizar);
-      window.removeEventListener('sesionActualizada', actualizar);
+      activo = false;
       window.removeEventListener('dbActualizada', actualizar);
-      window.removeEventListener('storage', actualizar);
     };
   }, []);
 
@@ -43,8 +43,8 @@ function Navbar() {
     cerrarMenu();
   };
 
-  const handleLogout = () => {
-    cerrarSesion();
+  const handleLogout = async () => {
+    await cerrarSesion();
     cerrarMenu();
     navigate('/');
   };

@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { obtenerUsuarios, eliminarUsuario, obtenerSesion } from '../../data/db';
+import { obtenerUsuarios, eliminarUsuario } from '../../data/db';
+import { useSesion } from '../../context/SesionContext';
+import { useCargar } from '../../data/useCargar';
+import Cargando, { ErrorCarga } from '../../components/Cargando';
+
 import ModalConfirmar from '../../components/ModalConfirmar';
 
 const CLASE_ROL = {
@@ -10,16 +14,23 @@ const CLASE_ROL = {
 };
 
 export default function AdminUsuarios() {
-  const [usuarios, setUsuarios] = useState(obtenerUsuarios);
+  const { datos: usuarios, error, recargar } = useCargar(() => obtenerUsuarios(), []);
   const [aEliminar, setAEliminar] = useState(null);
-  const sesion = obtenerSesion();
+  const { sesion } = useSesion();
 
-  const confirmarEliminar = () => {
+  if (error) return <ErrorCarga error={error} onReintentar={recargar} />;
+  if (!usuarios) return <Cargando />;
+
+  const confirmarEliminar = async () => {
     if (!aEliminar) return;
 
-    eliminarUsuario(aEliminar.id);
-    setUsuarios(obtenerUsuarios());
+    try {
+      await eliminarUsuario(aEliminar.id);
+    } catch (err) {
+      alert(err.message);
+    }
     setAEliminar(null);
+    recargar();
   };
 
   return (
