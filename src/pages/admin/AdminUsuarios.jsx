@@ -80,6 +80,14 @@ export default function AdminUsuarios() {
                       </span>
                     </td>
                     <td className="text-end">
+                      <Link
+                        to={`/admin/usuarios/${usuario.id}/editar`}
+                        className="btn btn-sm btn-outline-primary me-2"
+                        aria-label={`Editar ${usuario.nombre} ${usuario.apellidos}`}
+                        title="Editar usuario"
+                      >
+                        <i className="bi bi-pencil"></i>
+                      </Link>
                       <button
                         className="btn btn-sm btn-outline-danger"
                         disabled={String(usuario.id) === String(sesion?.id)}

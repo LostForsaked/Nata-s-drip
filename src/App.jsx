@@ -28,6 +28,7 @@ import AdminHome from "./pages/admin/AdminHome";
 import AdminProductos from "./pages/admin/AdminProductos";
 import AdminUsuarios from "./pages/admin/AdminUsuarios";
 import AdminUsuariosNuevo from "./pages/admin/AdminUsuariosNuevo";
+import AdminUsuarioForm from "./pages/admin/AdminUsuarioForm";
 import AdminProductosCriticos from "./pages/admin/AdminProductosCriticos";
 import AdminProductoDetalle from "./pages/admin/AdminProductoDetalle";
 import AdminProductoForm from "./pages/admin/AdminProductoForm";
@@ -396,6 +397,10 @@ export default function App() {
                   <Route
                     path="usuarios/nuevo"
                     element={<AdminUsuariosNuevo />}
+                  />
+                  <Route
+                    path="usuarios/:id/editar"
+                    element={<AdminUsuarioForm />}
                   />
                   <Route path="reportes" element={<AdminReportes />} />
                 </Route>

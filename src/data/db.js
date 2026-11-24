@@ -53,8 +53,11 @@ const aUsuario = (u) => ({
   telefono: u.telefono ?? '',
   fechaNacimiento: u.fechaNacimiento ?? '',
   rol: u.rol,
+  idRol: u.idRol,
   region: u.region ?? '',
+  idRegion: u.idRegion,
   comuna: u.comuna ?? '',
+  idComuna: u.idComuna,
   direccion: u.direccion ?? '',
 });
 
@@ -141,26 +144,43 @@ export const eliminarUsuario = (id) => api(`/usuarios/${id}`, { method: 'DELETE'
 
 const limpiarRun = (run) => String(run ?? '').trim().toUpperCase().replace(/[.\-]/g, '');
 
+export async function buscarUsuarioPorId(id) {
+  try {
+    return aUsuario(await api(`/usuarios/${encodeURIComponent(id)}`));
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) return null;
+    throw err;
+  }
+}
 
-export async function crearUsuario(datos) {
+async function cuerpoUsuario(datos) {
   const [idComuna, idRol] = await Promise.all([
     resolverComunaId(datos.region, datos.comuna),
     resolverRolId(datos.rol),
   ]);
-  const usuario = await api('/usuarios', {
-    method: 'POST',
-    body: {
-      run: limpiarRun(datos.run),
-      nombre: datos.nombre,
-      apellidos: datos.apellidos,
-      correo: datos.correo,
-      password: datos.password,
-      telefono: datos.telefono || null,
-      fechaNacimiento: datos.fechaNacimiento || null,
-      direccion: datos.direccion,
-      idComuna,
-      idRol,
-    },
+  return {
+    run: limpiarRun(datos.run),
+    nombre: datos.nombre,
+    apellidos: datos.apellidos,
+    correo: datos.correo,
+    password: datos.password || null,
+    telefono: datos.telefono || null,
+    fechaNacimiento: datos.fechaNacimiento || null,
+    direccion: datos.direccion,
+    idComuna,
+    idRol,
+  };
+}
+
+export async function crearUsuario(datos) {
+  const usuario = await api('/usuarios', { method: 'POST', body: await cuerpoUsuario(datos) });
+  return aUsuario(usuario);
+}
+
+export async function actualizarUsuario(id, datos) {
+  const usuario = await api(`/usuarios/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    body: await cuerpoUsuario(datos),
   });
   return aUsuario(usuario);
 }

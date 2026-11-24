@@ -1,8 +1,8 @@
 // API falsa en memoria para probar el contrato REST del backend Spring Boot.
 import { vi } from 'vitest';
 
-const ADMIN = { id: 1, run: '111111111', nombre: 'Admin', apellidos: 'Nata', correo: 'admin@gmail.com', telefono: '', fechaNacimiento: '', rol: 'Administrador', region: 'Región Metropolitana de Santiago', comuna: 'Santiago', direccion: 'Calle 1' };
-const CLIENTE = { ...ADMIN, id: 4, nombre: 'Cliente', apellidos: 'Demo', correo: 'cliente@gmail.com', rol: 'Cliente' };
+const ADMIN = { id: 1, run: '111111111', nombre: 'Admin', apellidos: 'Nata', correo: 'admin@gmail.com', telefono: '', fechaNacimiento: '', rol: 'Administrador', idRol: 1, region: 'Región Metropolitana de Santiago', idRegion: 7, comuna: 'Santiago', idComuna: 131, direccion: 'Calle 1' };
+const CLIENTE = { ...ADMIN, id: 4, nombre: 'Cliente', apellidos: 'Demo', correo: 'cliente@gmail.com', rol: 'Cliente', idRol: 3 };
 
 export const USUARIOS = { admin: ADMIN, cliente: CLIENTE };
 
@@ -37,7 +37,7 @@ const orden = (id, estado) => ({
  * revisar las peticiones del frontend. `usuario` = sesión activa (o null).
  */
 export function instalarApiFalsa({ usuario = ADMIN } = {}) {
-  const estado = { usuario, productos: structuredClone(PRODUCTOS) };
+  const estado = { usuario, usuarios: structuredClone([ADMIN, CLIENTE]), productos: structuredClone(PRODUCTOS) };
   const llamadas = [];
 
   if (usuario) localStorage.setItem('nd_token', 'test-token');
@@ -66,7 +66,12 @@ export function instalarApiFalsa({ usuario = ADMIN } = {}) {
         const p = estado.productos.find((x) => String(x.id) === ruta.split('/')[2]);
         return p ? json(p) : error(404, 'Producto no encontrado.');
       }
-      if (ruta === '/usuarios') return json([ADMIN, CLIENTE]);
+      if (ruta === '/usuarios') return json(estado.usuarios);
+      if (ruta.startsWith('/usuarios/')) {
+        const id = Number(ruta.split('/')[2]);
+        const usuarioEncontrado = estado.usuarios.find((u) => u.id === id);
+        return usuarioEncontrado ? json(usuarioEncontrado) : error(404, 'El usuario no existe');
+      }
       if (ruta === '/ordenes') return json([orden(1, 'Pagada'), orden(2, 'Pago fallido')]);
       if (ruta === '/cupones/NATAS10') return json({ codigo: 'NATAS10', porcentaje: 10 });
       if (ruta.startsWith('/ordenes/')) {
@@ -83,6 +88,26 @@ export function instalarApiFalsa({ usuario = ADMIN } = {}) {
     if (metodo === 'PUT' && ruta === '/perfil') {
       estado.usuario = { ...estado.usuario, ...cuerpo, region: REGION.nombre, comuna: COMUNAS[0].nombre };
       return json(estado.usuario);
+    }
+    if (metodo === 'PUT' && /^\/usuarios\/\d+$/.test(ruta)) {
+      const id = Number(ruta.split('/')[2]);
+      const indice = estado.usuarios.findIndex((u) => u.id === id);
+      if (indice < 0) return error(404, 'El usuario no existe');
+      const comuna = COMUNAS.find((c) => c.id === cuerpo.idComuna);
+      const rol = [{ id: 1, nombre: 'Administrador' }, { id: 2, nombre: 'Vendedor' }, { id: 3, nombre: 'Cliente' }]
+        .find((r) => r.id === cuerpo.idRol);
+      estado.usuarios[indice] = {
+        ...estado.usuarios[indice],
+        ...cuerpo,
+        id,
+        rol: rol?.nombre,
+        idRol: cuerpo.idRol,
+        region: REGION.nombre,
+        idRegion: REGION.id,
+        comuna: comuna?.nombre,
+        idComuna: cuerpo.idComuna,
+      };
+      return json(estado.usuarios[indice]);
     }
     if (metodo === 'POST' && ruta === '/productos') {
       return json({ ...producto(4), ...cuerpo, id: 4, categoria: 'Memes' }, 201);

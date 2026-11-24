@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   obtenerProductos, buscarProductoPorId, crearProducto, eliminarProducto,
   obtenerCategorias, eliminarCategoria,
+  buscarUsuarioPorId, actualizarUsuario,
   iniciarSesion, cerrarSesion, obtenerSesion, actualizarPerfil,
   registrarUsuario, buscarOrdenPorId,
   esOferta, precioFinal, nombreCategoria,
@@ -110,6 +111,29 @@ describe('Cliente de la API Spring Boot', () => {
     const nuevo = await registrarUsuario(datos);
     expect(nuevo.correo).toBe('nuevo@gmail.com');
     await expect(registrarUsuario({ ...datos, correo: 'admin@gmail.com' })).rejects.toMatchObject({ status: 409, campo: 'correo' });
+  });
+
+  it('carga y actualiza usuarios usando el contrato de la API', async () => {
+    const { llamadas } = instalarApiFalsa();
+    const usuario = await buscarUsuarioPorId(4);
+    expect(usuario).toMatchObject({ nombre: 'Cliente', idRol: 3, idComuna: 131 });
+
+    const actualizado = await actualizarUsuario(4, {
+      ...usuario,
+      nombre: 'Cliente editado',
+      password: '',
+    });
+
+    expect(actualizado.nombre).toBe('Cliente editado');
+    expect(llamadas.find((llamada) => llamada.metodo === 'PUT')).toMatchObject({
+      ruta: '/usuarios/4',
+      cuerpo: {
+        nombre: 'Cliente editado',
+        password: null,
+        idComuna: 131,
+        idRol: 3,
+      },
+    });
   });
 
   it('actualiza el perfil y devuelve el usuario actualizado', async () => {

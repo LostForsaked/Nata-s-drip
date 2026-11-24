@@ -32,6 +32,7 @@ const PAGINAS = [
   ['Admin: categorías', '/admin/categorias'],
   ['Admin: usuarios', '/admin/usuarios'],
   ['Admin: nuevo usuario', '/admin/usuarios/nuevo'],
+  ['Admin: editar usuario', '/admin/usuarios/4/editar'],
   ['Admin: reportes', '/admin/reportes'],
   ['Página no encontrada', '/ruta-inexistente'],
 ];
@@ -100,6 +101,17 @@ describe('Smoke tests de las páginas', () => {
     fireEvent.submit(screen.getByRole('button', { name: 'Guardar Usuario' }).closest('form'));
     expect(await screen.findByText('Ingresa un RUN válido. Ej: 19011022K.')).toBeTruthy();
     expect(screen.getByText('La dirección es obligatoria.')).toBeTruthy();
+  });
+
+  it('permite editar datos de usuario y dejar vacía la contraseña para conservarla', async () => {
+    window.history.replaceState({}, '', '/admin/usuarios/4/editar');
+    render(<App />);
+
+    expect(await screen.findByRole('heading', { name: 'Editar Usuario' })).toBeTruthy();
+    expect(screen.getByLabelText('Nombre').value).toBe('Cliente');
+    expect(screen.getByLabelText('Apellidos').value).toBe('Demo');
+    expect(screen.getByLabelText(/Contraseña/).value).toBe('');
+    expect(screen.getByText('Déjala vacía para conservar la contraseña actual.')).toBeTruthy();
   });
 
   it('renderiza la vista Pendiente, que no está conectada a una ruta', () => {
