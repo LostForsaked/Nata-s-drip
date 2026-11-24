@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import cl.duoc.natasdrip.dto.PasswordRequest;
 
 import java.util.List;
 import java.util.Locale;
@@ -60,6 +61,7 @@ public class UsuarioService {
     }
 
 
+
     @Transactional(readOnly = true)
     public UsuarioDto perfil(Integer idUsuario) {
         return aDto(buscar(idUsuario));
@@ -75,6 +77,15 @@ public class UsuarioService {
         usuario.setDireccion(s.direccion().trim());
         usuario.setComuna(buscarComuna(s.idComuna()));
         return aDto(usuario);
+    }
+
+    @Transactional
+    public void cambiarPassword(Integer idUsuario, PasswordRequest s) {
+        Usuario usuario = buscar(idUsuario);
+        if (!passwordEncoder.matches(s.actual(), usuario.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La contraseña actual no es correcta");
+        }
+        usuario.setPassword(passwordEncoder.encode(s.nueva()));
     }
 
 

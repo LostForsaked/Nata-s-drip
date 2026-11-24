@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import cl.duoc.natasdrip.dto.PasswordRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.List;
 
@@ -34,6 +37,12 @@ public class PerfilController {
     @PutMapping
     public UsuarioDto actualizar(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody PerfilRequest solicitud) {
         return usuarioService.actualizarPerfil(UsuarioActual.id(jwt), solicitud);
+    }
+
+    @PutMapping("/password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void cambiarPassword(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody PasswordRequest solicitud) {
+        usuarioService.cambiarPassword(UsuarioActual.id(jwt), solicitud);
     }
 
     @GetMapping("/ordenes")

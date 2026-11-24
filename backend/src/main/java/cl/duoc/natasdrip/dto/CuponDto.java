@@ -1,4 +1,4 @@
 package cl.duoc.natasdrip.dto;
 
-public class CuponDto {
+public record CuponDto(String codigo, Integer porcentaje) {
 }

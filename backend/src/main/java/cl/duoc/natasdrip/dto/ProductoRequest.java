@@ -18,7 +18,6 @@ public record ProductoRequest(
         @Size(max = 500, message = "La descripción admite hasta 500 caracteres")
         String descripcion,
 
-        @Size(max = 200, message = "La ruta de la imagen admite hasta 200 caracteres")
         String imagen,
 
         @NotNull(message = "El precio es obligatorio")

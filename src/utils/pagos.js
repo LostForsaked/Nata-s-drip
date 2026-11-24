@@ -1,21 +1,46 @@
-/**
- * Órdenes y pagos simulados (modo demostración).
- * La lógica crítica ahora corre en el servidor dentro de transacciones MySQL:
- * verificar stock, descontarlo, marcar la orden como Pagada y vaciar el carrito.
- */
 import { api, ApiError } from '../data/api';
+import { guardarUltimaOrden, leerUltimaOrden, resolverComunaId } from '../data/db';
+import { obtenerCarrito, vaciarCarritoGlobal } from './cardLogic';
 
-/**
- * Crea la orden "pendiente de pago" con el carrito y cupón guardados en la sesión.
- * Lanza ApiError (409) si algún producto no tiene stock suficiente.
- */
-export const crearOrdenPendiente = ({ cliente, direccion }) =>
-  api('/ordenes', { method: 'POST', body: { cliente, direccion } });
 
-/** Pago aprobado. Devuelve { ok: true } o { ok: false, error } (p. ej. sin stock). */
+const correoDe = (ordenId) => {
+  const ultima = leerUltimaOrden();
+  return ultima && String(ultima.id) === String(ordenId) ? ultima.cliente.correo : undefined;
+};
+
+
+export async function crearOrdenPendiente({ cliente, direccion }) {
+  const { items, cupon } = await obtenerCarrito();
+  if (!items.length) throw new ApiError(400, 'Tu carrito está vacío.');
+
+  const idComuna = await resolverComunaId(direccion.region, direccion.comuna);
+  const orden = await api('/ordenes', {
+    method: 'POST',
+    body: {
+      cliente: { nombre: cliente.nombre, apellidos: cliente.apellidos, correo: cliente.correo },
+      direccion: {
+        calle: direccion.calle,
+        departamento: direccion.departamento || null,
+        idComuna,
+        indicaciones: direccion.indicaciones || null,
+      },
+      items: items.map((i) => ({ productoId: i.id, cantidad: i.cantidad })),
+      cupon: cupon?.codigo ?? null,
+    },
+  });
+  guardarUltimaOrden(orden);
+  return orden;
+}
+
+//pago aprobado
 export async function aprobarPago(ordenId) {
   try {
-    await api(`/ordenes/${ordenId}/pagar`, { method: 'POST' });
+    const orden = await api(`/ordenes/${ordenId}/pagar`, {
+      method: 'POST',
+      body: { correo: correoDe(ordenId) },
+    });
+    guardarUltimaOrden(orden);
+    await vaciarCarritoGlobal(); 
     return { ok: true };
   } catch (err) {
     if (err instanceof ApiError) return { ok: false, error: err.message };
@@ -23,5 +48,12 @@ export async function aprobarPago(ordenId) {
   }
 }
 
-/** Pago rechazado: la orden queda como "Pago fallido" y el carrito se conserva. */
-export const rechazarPago = (ordenId) => api(`/ordenes/${ordenId}/rechazar`, { method: 'POST' });
+//pago rechazado
+export async function rechazarPago(ordenId) {
+  const orden = await api(`/ordenes/${ordenId}/rechazar`, {
+    method: 'POST',
+    body: { correo: correoDe(ordenId) },
+  });
+  guardarUltimaOrden(orden);
+  return { ok: true, orden };
+}

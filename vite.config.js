@@ -9,8 +9,7 @@ export default defineConfig({
     babel({ presets: [reactCompilerPreset()] }),
   ],
   server: {
-    // En desarrollo, las llamadas a /api se envían al servidor Express (puerto 3001)
-    proxy: { '/api': 'http://localhost:3001' },
+    proxy: { '/api': 'http://localhost:8080' },
   },
   test: {
     environment: 'jsdom',

@@ -29,7 +29,7 @@ public class Producto {
     @Column(name = "descripcion", length = 500)
     private String descripcion;
 
-    @Column(name = "imagen", length = 200)
+    @Column(name = "imagen", columnDefinition = "MEDIUMTEXT")
     private String imagen = "/img/Logo.jpg";
 
     @Column(name = "precio", nullable = false)
