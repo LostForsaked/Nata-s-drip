@@ -10,6 +10,8 @@ public interface ProductoRepository extends JpaRepository<Producto,Integer> {
 
     boolean existsByCodigoIgnoreCase(String codigo);
 
+    boolean existsByCategoriaId(Integer idCategoria);
+
     List<Producto> findByCategoriaId(Integer idCategoria);
 
     @Query("select p from Producto p where p.stockCritico is not null and p.stock <= p.stockCritico")
