@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { validarRequerido, validarCorreo, validarPassword } from '../../utils/validaciones';
 import { crearUsuario } from '../../data/db';
+import { useNotificaciones } from '../../context/NotificacionesContext';
 
 export default function AdminUsuariosNuevo() {
+  const { notificar } = useNotificaciones();
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,17 +17,17 @@ export default function AdminUsuariosNuevo() {
 
     // Validaciones
     if (!validarRequerido(nombre)) {
-      alert("El nombre completo es obligatorio.");
+      notificar('El nombre completo es obligatorio.', 'danger');
       return;
     }
 
     if (!validarCorreo(email)) {
-      alert("Por favor, ingresa un correo válido (ej: @duoc.cl, @profesor.duoc.cl o @gmail.com).");
+      notificar('Por favor, ingresa un correo válido (ej: @duoc.cl, @profesor.duoc.cl o @gmail.com).', 'danger');
       return;
     }
 
     if (!validarPassword(password)) {
-      alert("La contraseña debe tener entre 4 y 10 caracteres.");
+      notificar('La contraseña debe tener entre 4 y 10 caracteres.', 'danger');
       return;
     }
 
@@ -41,11 +43,11 @@ export default function AdminUsuariosNuevo() {
         rol,
       });
     } catch (err) {
-      alert(err.message);
+      notificar(err.message, 'danger');
       return;
     }
 
-    alert("¡Usuario registrado con éxito!");
+    notificar('¡Usuario registrado con éxito!', 'success');
     navigate('/admin/usuarios');
   };
 
@@ -61,7 +63,7 @@ export default function AdminUsuariosNuevo() {
         </header>
 
         <div className="card border-0 shadow-sm rounded-4 p-4" style={{ maxWidth: '600px' }}>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
             <div className="mb-3">
               <label className="form-label fw-semibold">Nombre Completo</label>
               <input 

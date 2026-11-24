@@ -26,6 +26,11 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +41,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrdenService {
+
+    private static final SecureRandom GENERADOR_ALEATORIO = new SecureRandom();
 
     public static final String PENDIENTE = "Pendiente de pago";
     public static final String PAGADA = "Pagada";
@@ -127,17 +134,19 @@ public class OrdenService {
         orden.setDescuento(descuento);
         orden.setTotal(subtotal - descuento);
 
+        String capacidadPago = idUsuario == null ? generarCapacidadPago() : null;
+        orden.setCapacidadPagoHash(capacidadPago == null ? null : hashCapacidad(capacidadPago));
         Orden guardada = ordenRepository.saveAndFlush(orden);
 
         String fecha = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
         guardada.setNumero(String.format("ND-%s-%04d", fecha, guardada.getId()));
-        return aDto(guardada);
+        return aDto(guardada, capacidadPago);
     }
 
     @Transactional
-    public OrdenDto pagar(Integer id, Integer idUsuario, String correo) {
+    public OrdenDto pagar(Integer id, Integer idUsuario, boolean esPersonal, String capacidadPago) {
         Orden orden = ordenRepository.findByIdForUpdate(id).orElseThrow(this::noEncontrada);
-        verificarComprador(orden, idUsuario, correo);
+        verificarComprador(orden, idUsuario, esPersonal, capacidadPago);
 
         if (PAGADA.equals(orden.getEstado().getNombre())) {
             return aDto(orden);
@@ -162,9 +171,9 @@ public class OrdenService {
     }
 
     @Transactional
-    public OrdenDto rechazar(Integer id, Integer idUsuario, String correo) {
+    public OrdenDto rechazar(Integer id, Integer idUsuario, boolean esPersonal, String capacidadPago) {
         Orden orden = ordenRepository.findByIdForUpdate(id).orElseThrow(this::noEncontrada);
-        verificarComprador(orden, idUsuario, correo);
+        verificarComprador(orden, idUsuario, esPersonal, capacidadPago);
         if (!PAGADA.equals(orden.getEstado().getNombre())) {
             orden.setEstado(estado(FALLIDO));
         }
@@ -172,12 +181,33 @@ public class OrdenService {
     }
 
 
-    private void verificarComprador(Orden orden, Integer idUsuario, String correo) {
+    private void verificarComprador(Orden orden, Integer idUsuario, boolean esPersonal, String capacidadPago) {
         boolean esDueno = idUsuario != null && orden.getUsuario() != null
                 && orden.getUsuario().getId().equals(idUsuario);
-        boolean correoCoincide = correo != null && correo.trim().equalsIgnoreCase(orden.getClienteCorreo());
-        if (!esDueno && !correoCoincide) {
+        boolean capacidadValida = orden.getUsuario() == null
+                && capacidadPago != null
+                && orden.getCapacidadPagoHash() != null
+                && MessageDigest.isEqual(
+                        hashCapacidad(capacidadPago).getBytes(StandardCharsets.US_ASCII),
+                        orden.getCapacidadPagoHash().getBytes(StandardCharsets.US_ASCII));
+        if (!esPersonal && !esDueno && !capacidadValida) {
             throw noEncontrada();
+        }
+    }
+
+    private String generarCapacidadPago() {
+        byte[] bytes = new byte[32];
+        GENERADOR_ALEATORIO.nextBytes(bytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+    }
+
+    static String hashCapacidad(String capacidadPago) {
+        try {
+            byte[] hash = MessageDigest.getInstance("SHA-256")
+                    .digest(capacidadPago.getBytes(StandardCharsets.UTF_8));
+            return java.util.HexFormat.of().formatHex(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 no está disponible", e);
         }
     }
 
@@ -204,6 +234,10 @@ public class OrdenService {
     }
 
     private OrdenDto aDto(Orden o) {
+        return aDto(o, null);
+    }
+
+    private OrdenDto aDto(Orden o, String capacidadPago) {
         Comuna comuna = o.getComuna();
         List<OrdenDto.ItemDto> items = o.getDetalles().stream()
                 .map(d -> new OrdenDto.ItemDto(
@@ -218,6 +252,6 @@ public class OrdenService {
                         comuna.getRegion().getNombre(), comuna.getNombre(), o.getIndicaciones()),
                 items, o.getSubtotal(), o.getDescuento(), o.getTotal(),
                 o.getCupon() == null ? null : o.getCupon().getCodigo(),
-                o.getFecha(), o.getFechaPago());
+                o.getFecha(), o.getFechaPago(), capacidadPago);
     }
 }

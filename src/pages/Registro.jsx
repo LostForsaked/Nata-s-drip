@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { validarRun, validarCorreo, validarPassword } from '../utils/validaciones';
 import { registrarUsuario } from '../data/db';
 import { regionesComunas } from '../data/regiones';
+import { useNotificaciones } from '../context/NotificacionesContext';
 
 
 function Registro() {
   const navigate = useNavigate();
+  const { notificar } = useNotificaciones();
 
   const [formData, setFormData] = useState({
     run: '',
@@ -91,7 +93,7 @@ function Registro() {
     }
 
     if (!formData.region || !formData.comuna) {
-      alert("Debes seleccionar región y comuna.");
+      notificar('Debes seleccionar región y comuna.', 'danger');
       formularioValido = false;
     }
 
@@ -116,13 +118,13 @@ function Registro() {
         // El servidor guarda el usuario en MySQL (con la contraseña cifrada) y
         // avisa si el correo o el RUN ya existen.
         await registrarUsuario(nuevoUsuario);
-        alert("¡Registro exitoso! Bienvenido/a " + formData.nombre);
+        notificar(`¡Registro exitoso! Bienvenido/a ${formData.nombre}.`, 'success');
         navigate("/login"); // Redirige al login tras registrarse con éxito
       } catch (err) {
         if (err.campo && err.campo in nuevosErrores) {
           setErrores((prev) => ({ ...prev, [err.campo]: err.message }));
         } else {
-          alert(err.message);
+          notificar(err.message, 'danger');
         }
       }
     }

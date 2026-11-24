@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import RutaProtegida from "./components/RutaProtegida";
 import { SesionProvider } from "./context/SesionContext";
+import { NotificacionesProvider } from "./context/NotificacionesContext";
 
 import Inicio from "./pages/Inicio";
 import Productos from "./pages/Productos";
@@ -62,7 +63,7 @@ function NoEncontrado() {
 
 export default function App() {
   return (
-    <>
+    <NotificacionesProvider>
       <style>{`
         :root {
           --hot-bg-1: #150a0c;
@@ -158,6 +159,33 @@ export default function App() {
           background: rgba(255, 255, 255, 0.03) !important;
           color: var(--hot-cream) !important;
           border: 1px solid rgba(255, 177, 116, 0.28);
+        }
+
+        .form-select {
+          color-scheme: dark;
+        }
+
+        .form-select option,
+        .form-select optgroup {
+          background-color: #211113;
+          color: #fff5ee;
+        }
+
+        .dropdown-menu .dropdown-item,
+        .dropdown-menu .dropdown-item-text {
+          color: #fff5ee !important;
+        }
+
+        .dropdown-menu .dropdown-item:hover,
+        .dropdown-menu .dropdown-item:focus,
+        .dropdown-menu .dropdown-item.active,
+        .dropdown-menu .dropdown-item:active {
+          background-color: rgba(255, 138, 61, 0.2) !important;
+          color: #ffd166 !important;
+        }
+
+        .dropdown-menu .dropdown-item.text-danger {
+          color: #ff9d7a !important;
         }
 
         .form-control::placeholder,
@@ -261,6 +289,28 @@ export default function App() {
           color: rgba(255, 243, 232, 0.82) !important;
         }
 
+        .text-dark:not(.bg-warning),
+        .text-secondary {
+          color: #ffe7d2 !important;
+        }
+
+        .bg-warning,
+        .bg-warning .text-dark {
+          color: #211113 !important;
+        }
+
+        .text-muted {
+          color: #ffd7a8 !important;
+        }
+
+        .text-primary {
+          color: #ffd076 !important;
+        }
+
+        .text-danger {
+          color: #ff9d7a !important;
+        }
+
         .badge,
         .bg-light,
         .bg-secondary {
@@ -357,6 +407,6 @@ export default function App() {
           </Routes>
         </BrowserRouter>
       </SesionProvider>
-    </>
+    </NotificacionesProvider>
   );
 }

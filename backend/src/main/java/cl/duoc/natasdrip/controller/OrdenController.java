@@ -49,22 +49,26 @@ public class OrdenController {
     @PostMapping("/{id}/pagar")
     public OrdenDto pagar(@PathVariable Integer id,
                           @RequestBody(required = false) PagoRequest solicitud,
-                          @AuthenticationPrincipal Jwt jwt) {
-        return ordenService.pagar(id, idOpcional(jwt), correoDe(solicitud));
+                          @AuthenticationPrincipal Jwt jwt,
+                          Authentication autenticacion) {
+        return ordenService.pagar(id, idOpcional(jwt), UsuarioActual.esPersonal(autenticacion),
+                capacidadDe(solicitud));
     }
 
     @PostMapping("/{id}/rechazar")
     public OrdenDto rechazar(@PathVariable Integer id,
                              @RequestBody(required = false) PagoRequest solicitud,
-                             @AuthenticationPrincipal Jwt jwt) {
-        return ordenService.rechazar(id, idOpcional(jwt), correoDe(solicitud));
+                             @AuthenticationPrincipal Jwt jwt,
+                             Authentication autenticacion) {
+        return ordenService.rechazar(id, idOpcional(jwt), UsuarioActual.esPersonal(autenticacion),
+                capacidadDe(solicitud));
     }
 
     private Integer idOpcional(Jwt jwt) {
         return jwt == null ? null : UsuarioActual.id(jwt);
     }
 
-    private String correoDe(PagoRequest solicitud) {
-        return solicitud == null ? null : solicitud.correo();
+    private String capacidadDe(PagoRequest solicitud) {
+        return solicitud == null ? null : solicitud.capacidadPago();
     }
 }

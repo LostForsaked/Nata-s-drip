@@ -6,6 +6,7 @@ import { useCargar } from '../../data/useCargar';
 import Cargando, { ErrorCarga } from '../../components/Cargando';
 
 import ModalConfirmar from '../../components/ModalConfirmar';
+import { useNotificaciones } from '../../context/NotificacionesContext';
 
 const CLASE_ROL = {
   Administrador: 'bg-danger',
@@ -17,6 +18,7 @@ export default function AdminUsuarios() {
   const { datos: usuarios, error, recargar } = useCargar(() => obtenerUsuarios(), []);
   const [aEliminar, setAEliminar] = useState(null);
   const { sesion } = useSesion();
+  const { notificar } = useNotificaciones();
 
   if (error) return <ErrorCarga error={error} onReintentar={recargar} />;
   if (!usuarios) return <Cargando />;
@@ -27,7 +29,8 @@ export default function AdminUsuarios() {
     try {
       await eliminarUsuario(aEliminar.id);
     } catch (err) {
-      alert(err.message);
+      notificar(err.message, 'danger');
+      return;
     }
     setAEliminar(null);
     recargar();

@@ -4,8 +4,10 @@ import {
   validarComentario, 
   validarCorreo 
 } from '../utils/validaciones';
+import { useNotificaciones } from '../context/NotificacionesContext';
 
 function Contacto() {
+  const { notificar } = useNotificaciones();
   const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
   const [comentario, setComentario] = useState('');
@@ -39,7 +41,7 @@ function Contacto() {
     setErrores(nuevosErrores);
 
     if (formularioValido) {
-      alert(`¡Gracias ${nombre}! Tu mensaje fue enviado.`);
+      notificar(`¡Gracias ${nombre}! Tu mensaje fue enviado.`, 'success');
       setNombre('');
       setCorreo('');
       setComentario('');

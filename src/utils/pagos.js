@@ -3,9 +3,9 @@ import { guardarUltimaOrden, leerUltimaOrden, resolverComunaId } from '../data/d
 import { obtenerCarrito, vaciarCarritoGlobal } from './cardLogic';
 
 
-const correoDe = (ordenId) => {
+const capacidadDe = (ordenId) => {
   const ultima = leerUltimaOrden();
-  return ultima && String(ultima.id) === String(ordenId) ? ultima.cliente.correo : undefined;
+  return ultima && String(ultima.id) === String(ordenId) ? ultima.capacidadPago : undefined;
 };
 
 
@@ -35,11 +35,12 @@ export async function crearOrdenPendiente({ cliente, direccion }) {
 //pago aprobado
 export async function aprobarPago(ordenId) {
   try {
+    const capacidadPago = capacidadDe(ordenId);
     const orden = await api(`/ordenes/${ordenId}/pagar`, {
       method: 'POST',
-      body: { correo: correoDe(ordenId) },
+      body: { capacidadPago },
     });
-    guardarUltimaOrden(orden);
+    guardarUltimaOrden({ ...orden, capacidadPago });
     await vaciarCarritoGlobal(); 
     return { ok: true };
   } catch (err) {
@@ -50,10 +51,11 @@ export async function aprobarPago(ordenId) {
 
 //pago rechazado
 export async function rechazarPago(ordenId) {
+  const capacidadPago = capacidadDe(ordenId);
   const orden = await api(`/ordenes/${ordenId}/rechazar`, {
     method: 'POST',
-    body: { correo: correoDe(ordenId) },
+    body: { capacidadPago },
   });
-  guardarUltimaOrden(orden);
+  guardarUltimaOrden({ ...orden, capacidadPago });
   return { ok: true, orden };
 }

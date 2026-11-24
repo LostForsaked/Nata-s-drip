@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { validarCorreo, validarPassword } from '../utils/validaciones';
 import { iniciarSesion } from '../data/db';
 import { useSesion } from '../context/SesionContext';
+import { useNotificaciones } from '../context/NotificacionesContext';
 
 function Login() {
   const navigate = useNavigate();
   const { establecerSesion } = useSesion();
+  const { notificar } = useNotificaciones();
 
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
@@ -42,7 +44,7 @@ function Login() {
         const usuario = await iniciarSesion(correo, password);
         establecerSesion(usuario);
 
-        alert(`¡Bienvenido/a ${usuario.nombre}! Sesión iniciada correctamente.`);
+        notificar(`¡Bienvenido/a ${usuario.nombre}! Sesión iniciada correctamente.`, 'success');
 
         // Redirección condicional con React Router
         if (usuario.rol === "Administrador" || usuario.rol === "Vendedor") {

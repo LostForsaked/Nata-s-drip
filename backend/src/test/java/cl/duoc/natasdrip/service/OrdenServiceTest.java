@@ -37,6 +37,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class OrdenServiceTest {
 
+    private static final String CAPACIDAD_PAGO = "capacidad-secreta-de-prueba";
+
     @Mock
     OrdenRepository ordenRepository;
     @Mock
@@ -124,6 +126,7 @@ class OrdenServiceTest {
         assertEquals(16200, dto.total());
         assertEquals("Pendiente de pago", dto.estado());
         assertTrue(dto.numero().endsWith("-0007"));
+        assertTrue(dto.capacidadPago() != null && !dto.capacidadPago().isBlank());
         assertNull(dto.usuarioId());
     }
 
@@ -153,11 +156,13 @@ class OrdenServiceTest {
     @Test
     void pagarDescuentaElStockYMarcaLaOrdenComoPagada() {
         Producto producto = producto(1, 10000, 0, 5);
-        when(ordenRepository.findByIdForUpdate(7)).thenReturn(Optional.of(ordenPendiente(producto, 2)));
+        Orden orden = ordenPendiente(producto, 2);
+        orden.setCapacidadPagoHash(OrdenService.hashCapacidad(CAPACIDAD_PAGO));
+        when(ordenRepository.findByIdForUpdate(7)).thenReturn(Optional.of(orden));
         when(productoRepository.findAllByIdForUpdate(List.of(1))).thenReturn(List.of(producto));
         when(estadoRepository.findByNombre(OrdenService.PAGADA)).thenReturn(Optional.of(new EstadoOrden(2, "Pagada")));
 
-        OrdenDto dto = servicio.pagar(7, null, "ana@gmail.com");
+        OrdenDto dto = servicio.pagar(7, null, false, CAPACIDAD_PAGO);
 
         assertEquals("Pagada", dto.estado());
         assertEquals(3, producto.getStock());
@@ -168,9 +173,10 @@ class OrdenServiceTest {
         Producto producto = producto(1, 10000, 0, 5);
         Orden orden = ordenPendiente(producto, 2);
         orden.setEstado(new EstadoOrden(2, "Pagada"));
+        orden.setCapacidadPagoHash(OrdenService.hashCapacidad(CAPACIDAD_PAGO));
         when(ordenRepository.findByIdForUpdate(7)).thenReturn(Optional.of(orden));
 
-        OrdenDto dto = servicio.pagar(7, null, "ana@gmail.com");
+        OrdenDto dto = servicio.pagar(7, null, false, CAPACIDAD_PAGO);
 
         assertEquals("Pagada", dto.estado());
         assertEquals(5, producto.getStock());
@@ -180,23 +186,25 @@ class OrdenServiceTest {
     @Test
     void pagarFallaSiElStockSeAgotoEntreLaCreacionYElPago() {
         Producto producto = producto(1, 10000, 0, 1);
-        when(ordenRepository.findByIdForUpdate(7)).thenReturn(Optional.of(ordenPendiente(producto, 2)));
+        Orden orden = ordenPendiente(producto, 2);
+        orden.setCapacidadPagoHash(OrdenService.hashCapacidad(CAPACIDAD_PAGO));
+        when(ordenRepository.findByIdForUpdate(7)).thenReturn(Optional.of(orden));
         when(productoRepository.findAllByIdForUpdate(List.of(1))).thenReturn(List.of(producto));
 
         ResponseStatusException error = assertThrows(ResponseStatusException.class,
-                () -> servicio.pagar(7, null, "ana@gmail.com"));
+                () -> servicio.pagar(7, null, false, CAPACIDAD_PAGO));
 
         assertEquals(409, error.getStatusCode().value());
         assertEquals(1, producto.getStock());
     }
 
     @Test
-    void unInvitadoNoPuedePagarConOtroCorreo() {
+    void unInvitadoNoPuedePagarConUnTokenInvalido() {
         Producto producto = producto(1, 10000, 0, 5);
         when(ordenRepository.findByIdForUpdate(7)).thenReturn(Optional.of(ordenPendiente(producto, 2)));
 
         ResponseStatusException error = assertThrows(ResponseStatusException.class,
-                () -> servicio.pagar(7, null, "otro@gmail.com"));
+                () -> servicio.pagar(7, null, false, "token-invalido"));
 
         assertEquals(404, error.getStatusCode().value());
     }
@@ -204,10 +212,12 @@ class OrdenServiceTest {
     @Test
     void rechazarDejaLaOrdenComoPagoFallido() {
         Producto producto = producto(1, 10000, 0, 5);
-        when(ordenRepository.findByIdForUpdate(7)).thenReturn(Optional.of(ordenPendiente(producto, 1)));
+        Orden orden = ordenPendiente(producto, 1);
+        orden.setCapacidadPagoHash(OrdenService.hashCapacidad(CAPACIDAD_PAGO));
+        when(ordenRepository.findByIdForUpdate(7)).thenReturn(Optional.of(orden));
         when(estadoRepository.findByNombre(OrdenService.FALLIDO)).thenReturn(Optional.of(new EstadoOrden(3, "Pago fallido")));
 
-        OrdenDto dto = servicio.rechazar(7, null, "ana@gmail.com");
+        OrdenDto dto = servicio.rechazar(7, null, false, CAPACIDAD_PAGO);
 
         assertEquals("Pago fallido", dto.estado());
         assertEquals(5, producto.getStock());

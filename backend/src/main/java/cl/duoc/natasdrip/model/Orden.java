@@ -41,6 +41,9 @@ public class Orden {
     @Column(name = "cliente_correo", nullable = false, length = 100)
     private String clienteCorreo;
 
+    @Column(name = "capacidad_pago_hash", length = 64)
+    private String capacidadPagoHash;
+
     @Column(name = "calle", nullable = false, length = 150)
     private String calle;
 

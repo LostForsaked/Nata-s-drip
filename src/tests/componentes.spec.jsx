@@ -4,6 +4,17 @@
 import React, { useState } from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { NotificacionesProvider, useNotificaciones } from '../context/NotificacionesContext';
+
+function PruebaNotificaciones() {
+  const { notificar } = useNotificaciones();
+
+  return (
+    <button onClick={() => notificar('Cambios guardados.', 'success')}>
+      Mostrar notificación
+    </button>
+  );
+}
 
 // Componente de lista de productos
 function ListaProductos({ productos }) {
@@ -121,5 +132,19 @@ describe('Pruebas de componentes React', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
 
     expect(cancelar).toHaveBeenCalledTimes(1);
+  });
+
+  it('muestra notificaciones de la aplicación en lugar de alertas del navegador', () => {
+    render(
+      <NotificacionesProvider>
+        <PruebaNotificaciones />
+      </NotificacionesProvider>
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar notificación' }));
+
+    expect(screen.getByRole('status').textContent).toContain('Cambios guardados.');
+    fireEvent.click(screen.getByRole('button', { name: 'Cerrar notificación' }));
+    expect(screen.queryByRole('status')).toBeNull();
   });
 });

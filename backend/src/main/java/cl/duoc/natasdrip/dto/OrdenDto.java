@@ -16,7 +16,8 @@ public record OrdenDto(
         Integer total,
         String cupon,
         LocalDateTime fecha,
-        LocalDateTime fechaPago) {
+        LocalDateTime fechaPago,
+        String capacidadPago) {
 
     public record ClienteDto(String nombre, String apellidos, String correo) {
     }
