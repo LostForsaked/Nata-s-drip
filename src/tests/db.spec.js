@@ -19,8 +19,8 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("Cliente de la API (reemplaza al localStorage por MySQL)", () => {
-  it('lee productos y categorías haciendo GET a /api', async () => {
+describe('Cliente de la API Spring Boot', () => {
+  it('lee productos y categorías haciendo GET a /api/v1', async () => {
     const { llamadas } = instalarApiFalsa();
 
     expect((await obtenerProductos()).length).toBe(3);
@@ -38,10 +38,32 @@ describe("Cliente de la API (reemplaza al localStorage por MySQL)", () => {
   it('envía los datos al crear y eliminar productos', async () => {
     const { llamadas } = instalarApiFalsa();
 
-    await crearProducto({ codigo: 'X1', nombre: 'Nuevo' });
+    await crearProducto({
+      codigo: 'X001',
+      nombre: 'Nuevo',
+      precio: 1000,
+      descuento: 0,
+      stock: 5,
+      stockCritico: 1,
+      categoriaId: 1,
+    });
     await eliminarProducto(7);
 
-    expect(llamadas[0]).toEqual({ metodo: 'POST', ruta: '/productos', cuerpo: { codigo: 'X1', nombre: 'Nuevo' } });
+    expect(llamadas[0]).toEqual({
+      metodo: 'POST',
+      ruta: '/productos',
+      cuerpo: {
+        codigo: 'X001',
+        nombre: 'Nuevo',
+        descripcion: null,
+        imagen: null,
+        precio: 1000,
+        descuento: 0,
+        stock: 5,
+        stockCritico: 1,
+        idCategoria: 1,
+      },
+    });
     expect(llamadas[1]).toMatchObject({ metodo: 'DELETE', ruta: '/productos/7' });
   });
 
@@ -79,15 +101,27 @@ describe("Cliente de la API (reemplaza al localStorage por MySQL)", () => {
   it('el registro devuelve el usuario creado y propaga el error de correo repetido', async () => {
     instalarApiFalsa({ usuario: null });
 
-    const nuevo = await registrarUsuario({ correo: 'nuevo@gmail.com', nombre: 'Nuevo' });
+    const datos = {
+      correo: 'nuevo@gmail.com',
+      nombre: 'Nuevo',
+      region: 'Región Metropolitana de Santiago',
+      comuna: 'Santiago',
+    };
+    const nuevo = await registrarUsuario(datos);
     expect(nuevo.correo).toBe('nuevo@gmail.com');
-    await expect(registrarUsuario({ correo: 'admin@gmail.com' })).rejects.toMatchObject({ status: 409, campo: 'correo' });
+    await expect(registrarUsuario({ ...datos, correo: 'admin@gmail.com' })).rejects.toMatchObject({ status: 409, campo: 'correo' });
   });
 
   it('actualiza el perfil y devuelve el usuario actualizado', async () => {
     instalarApiFalsa({ usuario: USUARIOS.cliente });
 
-    const usuario = await actualizarPerfil({ nombre: 'Otro' });
+    const usuario = await actualizarPerfil({
+      nombre: 'Otro',
+      apellidos: 'Demo',
+      direccion: 'Calle 2',
+      region: 'Región Metropolitana de Santiago',
+      comuna: 'Santiago',
+    });
     expect(usuario.nombre).toBe('Otro');
   });
 
@@ -121,7 +155,7 @@ describe("Cliente de la API (reemplaza al localStorage por MySQL)", () => {
   });
 });
 
-describe('Carrito y pagos (guardados en MySQL)', () => {
+describe('Carrito local y pagos mediante API', () => {
   it('agrega al carrito, cambia cantidades y aplica un cupón', async () => {
     const { llamadas } = instalarApiFalsa();
 
@@ -129,9 +163,16 @@ describe('Carrito y pagos (guardados en MySQL)', () => {
     await cambiarCantidadCarrito(3, -1);
     await aplicarCupon('NATAS10');
 
-    expect(llamadas[0]).toEqual({ metodo: 'POST', ruta: '/carrito/items', cuerpo: { productoId: 3, cantidad: 2 } });
-    expect(llamadas[1]).toEqual({ metodo: 'PATCH', ruta: '/carrito/items/3', cuerpo: { delta: -1 } });
-    expect(llamadas[2]).toEqual({ metodo: 'PUT', ruta: '/carrito/cupon', cuerpo: { codigo: 'NATAS10' } });
+    expect(JSON.parse(localStorage.getItem('nd_carrito'))).toEqual({
+      items: [{ productoId: 3, cantidad: 1 }],
+      cupon: { codigo: 'NATAS10', porcentaje: 10 },
+    });
+    expect(llamadas.map(({ metodo, ruta }) => `${metodo} ${ruta}`)).toEqual([
+      'GET /productos/3',
+      'GET /productos/3',
+      'GET /productos',
+      'GET /cupones/NATAS10',
+    ]);
   });
 
   it('calcula subtotal, descuento del cupón y total', () => {
@@ -148,7 +189,12 @@ describe('Carrito y pagos (guardados en MySQL)', () => {
     expect(await aprobarPago(1)).toEqual({ ok: true });
 
     vi.stubGlobal('fetch', vi.fn(async () =>
-      new Response(JSON.stringify({ error: 'solo quedan 1 unidades de "X" (pediste 3).' }), { status: 409 })
+      new Response(JSON.stringify({
+        status: 409,
+        error: 'Conflict',
+        mensaje: 'solo quedan 1 unidades de "X" (pediste 3).',
+        campos: {},
+      }), { status: 409 })
     ));
     expect(await aprobarPago(1)).toEqual({ ok: false, error: 'solo quedan 1 unidades de "X" (pediste 3).' });
   });

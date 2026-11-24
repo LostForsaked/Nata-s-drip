@@ -9,10 +9,18 @@ export default defineConfig({
     babel({ presets: [reactCompilerPreset()] }),
   ],
   server: {
-    proxy: { '/api': 'http://localhost:8080' },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+    },
   },
   test: {
     environment: 'jsdom',
-    exclude: [...configDefaults.exclude, 'src/tests/**/*.karma.spec.jsx', 'server/tests/**'],
+    exclude: [
+      ...configDefaults.exclude,
+      'src/tests/**/*.karma.spec.jsx',
+    ],
   },
 })

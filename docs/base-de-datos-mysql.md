@@ -1,86 +1,54 @@
-# Base de datos MySQL de Nata's Drip
+# Base de datos MySQL
 
-Antes todo (productos, usuarios, carrito, órdenes, sesión…) se guardaba en el
-`localStorage` del navegador. Ahora vive en **MySQL** y el navegador solo habla
-con un servidor (carpeta `server/`):
+El frontend se comunica con la API Java; nunca se conecta directamente a MySQL:
 
-```
-Navegador (React)  ──/api──▶  Servidor Express (Node)  ──SQL──▶  MySQL (natas_drip)
+```text
+React/Vite (5173) ── /api ──▶ Spring Boot (8080) ──▶ MySQL (natasdrip_api)
 ```
 
-> Un navegador **no puede** conectarse directo a MySQL (expondría la contraseña
-> de la base a cualquiera). Por eso existe el servidor intermedio.
+## Requisitos y configuración
 
-## 1. Crear la base en MySQL Workbench
+1. Instala y ejecuta MySQL.
+2. Copia `.env.example` a `.env` en la raíz del proyecto.
+3. Configura `DB_USER` y `DB_PASSWORD` para una cuenta MySQL que pueda crear la
+   base de datos.
+4. Cambia `JWT_SECRET` por un valor aleatorio de al menos 32 caracteres. No uses
+   el valor de ejemplo en un entorno compartido o de producción.
 
-1. Abre **MySQL Workbench** y entra a tu conexión (ej. *Local instance MySQL*).
-2. `File ▸ Open SQL Script…` → elige **`database/01_schema.sql`** → pulsa el rayo ⚡ (Execute).
-   Crea la base `natas_drip` y las 9 tablas.
-3. Repite con **`database/02_seed.sql`**: carga categorías, 12 productos, 4 usuarios y el cupón.
-4. En el panel izquierdo, clic derecho en *Schemas* ▸ **Refresh All** y verás `natas_drip`.
+La aplicación carga ese archivo `.env` al arrancar desde `backend/`. Por defecto
+usa la base `natasdrip_api` en `localhost:3306`; puedes cambiar esos valores en
+`.env`. Hibernate crea o actualiza las tablas y
+[`backend/src/main/resources/data.sql`](../backend/src/main/resources/data.sql)
+carga los datos iniciales al iniciar la API. No ejecutes
+`database/01_schema.sql` ni `database/02_seed.sql` para esta versión: pertenecen
+al esquema del backend anterior y no son compatibles con las tablas Java.
 
-Ver el diagrama: menú `Database ▸ Reverse Engineer…` → elige `natas_drip` → *Next* hasta el final.
+## Ejecutar
 
-`database/03_reset.sql` borra todas las tablas (úsalo solo para empezar de cero).
-
-### Tablas
-
-| Tabla | Reemplaza en localStorage | Contenido |
-|---|---|---|
-| `categorias` | `nd_categorias` | nombre único |
-| `productos` | `nd_productos` | código único, precio, stock, stock crítico, descuento, categoría (FK) |
-| `usuarios` | `nd_usuarios` | RUN/correo únicos, contraseña **cifrada (bcrypt)**, rol |
-| `cupones` | constante `CUPON` | código y porcentaje |
-| `sesiones` | `usuario_sesion`, `50off` | quién está logueado y su cupón (cookie httpOnly) |
-| `carrito_items` | `mi_carrito` | producto y cantidad por sesión |
-| `ordenes` | `nd_ordenes` | cliente, dirección, totales, estado |
-| `orden_items` | `items` de cada orden | copia de nombre y precio al comprar |
-
-## 2. Configurar la conexión
-
-Copia `.env.example` como `.env` y escribe tu usuario y contraseña de MySQL:
-
-```
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=tu_contraseña
-DB_NAME=natas_drip
-```
-
-(`.env` está en `.gitignore`: no se sube a Git.)
-
-## 3. Ejecutar
+Desde la raíz del repositorio:
 
 ```bash
 npm install
-npm run dev:all      # servidor API (3001) + web con Vite (5173)
+npm run dev:all
 ```
 
-Abre http://localhost:5173. Cuentas de prueba:
+Abre <http://localhost:5173>. La API está en <http://localhost:8080> y su
+documentación OpenAPI en <http://localhost:8080/swagger-ui/index.html>.
 
-| Correo | Contraseña | Rol |
-|---|---|---|
-| admin@gmail.com | admin | Administrador |
-| vendedor@gmail.com | 1234 | Vendedor |
-| cliente@gmail.com | 1234 | Cliente |
+Para iniciar un servicio por separado, usa `npm run dev` para Vite o
+`npm run dev:backend` para Spring Boot. El carrito se mantiene en el navegador;
+los productos, usuarios, cupones y órdenes se gestionan mediante la API.
 
-Producción: `npm run build` y luego `npm start` (Express sirve la web y la API en el puerto 3001).
-
-Alternativa sin Workbench: `npm run db:setup` ejecuta los dos scripts SQL desde la terminal.
-
-## 4. Pruebas
+## Pruebas
 
 ```bash
-npm test          # frontend (API falsa, no necesita MySQL)
-npm run test:api  # API contra MySQL real; usa una base aparte: natas_drip_test
+npm test
+npm run build
 ```
 
-## Qué cambió en el código
+Las pruebas Java se pueden ejecutar desde la raíz con:
 
-* `src/data/db.js` ahora es un cliente de la API (mismos nombres, pero **async**: usar `await`).
-* `src/data/useCargar.js` y `src/context/SesionContext.jsx`: cargan datos y sesión de forma asíncrona.
-* `src/utils/cardLogic.js` y `pagos.js`: carrito, cupón y pagos pasan por la API.
-* El **servidor calcula los precios, totales y stock** (el navegador ya no puede alterarlos).
-* El pago descuenta stock dentro de una **transacción** con filas bloqueadas.
-* `/admin` ahora exige iniciar sesión como Administrador/Vendedor (y el servidor valida cada petición).
+```powershell
+Set-Location backend
+.\mvnw.cmd test
+```

@@ -1,27 +1,62 @@
-# React + Vite
+# Nata's Drip
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Aplicación de tienda con frontend React/Vite y backend Java Spring Boot conectado
+a MySQL.
 
-Currently, two official plugins are available:
+## Requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js y npm
+- JDK 21
+- MySQL en ejecución
 
-## React Compiler
+## Configuración local
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+1. Copia `.env.example` a `.env`.
+2. Completa `DB_PASSWORD` con la contraseña de tu usuario MySQL.
+3. Reemplaza `JWT_SECRET` por una clave aleatoria de al menos 32 caracteres.
+4. Instala las dependencias del frontend:
 
-Note: This will impact Vite dev & build performances.
-You can also try [the experimental native React Compiler support in plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md#rust-react-compiler) by using `compiler: true` in the plugin options instead of using the Babel plugin.
+   ```bash
+   npm install
+   ```
 
-## Expanding the Oxlint configuration
+El backend crea la base `natasdrip_api` si no existe, administra sus tablas con
+JPA y carga los datos iniciales desde
+[`backend/src/main/resources/data.sql`](backend/src/main/resources/data.sql).
+El usuario MySQL debe tener permiso para crear la base de datos. Los scripts
+`database/*.sql` corresponden al esquema anterior y no se usan con este backend.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Iniciar frontend y backend
 
-## Base de datos (MySQL)
+Desde la raíz del proyecto:
 
-La tienda guarda todo en MySQL en vez de `localStorage`. Guía completa con los pasos
-de MySQL Workbench en [`docs/base-de-datos-mysql.md`](docs/base-de-datos-mysql.md).
+```bash
+npm run dev:all
+```
 
-Resumen: ejecuta `database/01_schema.sql` y `database/02_seed.sql` en Workbench,
-copia `.env.example` a `.env` con tu contraseña de MySQL y corre `npm run dev:all`.
+Vite queda disponible en <http://localhost:5173> y reenvía `/api` a Spring Boot
+en el puerto 8080. Swagger UI del backend está en
+<http://localhost:8080/swagger-ui/index.html>.
+
+También puedes iniciar cada servicio por separado:
+
+```bash
+npm run dev
+npm run dev:backend
+```
+
+El comando `dev:all` detiene el otro servicio si uno de los dos termina.
+
+## Validación
+
+```bash
+npm test
+npm run build
+```
+
+Para ejecutar las pruebas del backend, desde la raíz:
+
+```powershell
+Set-Location backend
+.\mvnw.cmd test
+```
