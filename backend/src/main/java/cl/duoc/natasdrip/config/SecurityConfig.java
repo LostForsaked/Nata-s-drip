@@ -91,6 +91,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/productos/criticos").hasRole("ADMINISTRADOR")
                         .requestMatchers(HttpMethod.GET, "/api/v1/productos/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/regiones/**", "/api/v1/comunas/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/ordenes", "/api/v1/ordenes/*/pagar", "/api/v1/ordenes/*/rechazar").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(convertidor)));
         return http.build();
