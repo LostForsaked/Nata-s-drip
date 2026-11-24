@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import App from '../App';
 import Pendiente from '../pages/admin/Pendiente';
 import { instalarApiFalsa, USUARIOS } from './apiFalsa';
@@ -87,6 +87,19 @@ describe('Smoke tests de las páginas', () => {
     expect(screen.getByRole('link', { name: 'Mi perfil' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Guardar cambios' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Actualizar contraseña' })).toBeTruthy();
+  });
+
+  it('muestra en crear usuario todos los campos que exige la API', async () => {
+    window.history.replaceState({}, '', '/admin/usuarios/nuevo');
+    render(<App />);
+
+    for (const label of ['RUN', 'Nombre', 'Apellidos', 'Correo Electrónico', 'Contraseña', 'Dirección', 'Región', 'Comuna', 'Rol de Usuario']) {
+      expect(await screen.findByLabelText(new RegExp(label))).toBeTruthy();
+    }
+
+    fireEvent.submit(screen.getByRole('button', { name: 'Guardar Usuario' }).closest('form'));
+    expect(await screen.findByText('Ingresa un RUN válido. Ej: 19011022K.')).toBeTruthy();
+    expect(screen.getByText('La dirección es obligatoria.')).toBeTruthy();
   });
 
   it('renderiza la vista Pendiente, que no está conectada a una ruta', () => {

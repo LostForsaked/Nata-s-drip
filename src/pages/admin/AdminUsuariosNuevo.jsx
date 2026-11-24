@@ -1,49 +1,102 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { validarRequerido, validarCorreo, validarPassword } from '../../utils/validaciones';
+import { regionesComunas } from '../../data/regiones';
 import { crearUsuario } from '../../data/db';
+import { validarCorreo, validarPassword, validarRun } from '../../utils/validaciones';
 import { useNotificaciones } from '../../context/NotificacionesContext';
+
+const FORMULARIO_INICIAL = {
+  run: '',
+  nombre: '',
+  apellidos: '',
+  correo: '',
+  password: '',
+  telefono: '',
+  fechaNacimiento: '',
+  direccion: '',
+  region: '',
+  comuna: '',
+  rol: 'Vendedor',
+};
+
+function fechaLocalHoy() {
+  const hoy = new Date();
+  const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+  const dia = String(hoy.getDate()).padStart(2, '0');
+  return `${hoy.getFullYear()}-${mes}-${dia}`;
+}
+
+function validarFormulario(datos) {
+  const errores = {};
+  const nombre = datos.nombre.trim();
+  const apellidos = datos.apellidos.trim();
+  const correo = datos.correo.trim();
+  const direccion = datos.direccion.trim();
+
+  if (!validarRun(datos.run)) errores.run = 'Ingresa un RUN válido. Ej: 19011022K.';
+  if (!nombre) errores.nombre = 'El nombre es obligatorio.';
+  else if (nombre.length > 50) errores.nombre = 'Máximo 50 caracteres.';
+  if (!apellidos) errores.apellidos = 'Los apellidos son obligatorios.';
+  else if (apellidos.length > 100) errores.apellidos = 'Máximo 100 caracteres.';
+  if (!validarCorreo(correo)) errores.correo = 'Usa un correo @duoc.cl, @profesor.duoc.cl o @gmail.com.';
+  else if (correo.length > 100) errores.correo = 'Máximo 100 caracteres.';
+  if (!datos.password.trim() || !validarPassword(datos.password)) {
+    errores.password = 'La contraseña debe tener entre 4 y 10 caracteres.';
+  }
+  if (datos.telefono.trim().length > 15) errores.telefono = 'Máximo 15 caracteres.';
+  if (datos.fechaNacimiento && datos.fechaNacimiento >= fechaLocalHoy()) {
+    errores.fechaNacimiento = 'La fecha de nacimiento debe ser anterior a hoy.';
+  }
+  if (!direccion) errores.direccion = 'La dirección es obligatoria.';
+  else if (direccion.length > 300) errores.direccion = 'Máximo 300 caracteres.';
+  if (!datos.region) errores.region = 'Selecciona una región.';
+  if (!datos.comuna) errores.comuna = 'Selecciona una comuna.';
+  if (!datos.rol) errores.rol = 'Selecciona un rol.';
+  return errores;
+}
 
 export default function AdminUsuariosNuevo() {
   const { notificar } = useNotificaciones();
-  const [nombre, setNombre] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [rol, setRol] = useState('Vendedor');
+  const [formulario, setFormulario] = useState(FORMULARIO_INICIAL);
+  const [errores, setErrores] = useState({});
+  const [guardando, setGuardando] = useState(false);
   const navigate = useNavigate();
+  const comunas = regionesComunas[formulario.region] || [];
+
+  const handleChange = ({ target: { name, value } }) => {
+    setFormulario((actual) => ({
+      ...actual,
+      [name]: value,
+      ...(name === 'region' ? { comuna: '' } : {}),
+    }));
+    setErrores((actual) => ({ ...actual, [name]: '', ...(name === 'region' ? { comuna: '' } : {}) }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const nuevosErrores = validarFormulario(formulario);
+    setErrores(nuevosErrores);
+    if (Object.keys(nuevosErrores).length) return;
 
-    // Validaciones
-    if (!validarRequerido(nombre)) {
-      notificar('El nombre completo es obligatorio.', 'danger');
-      return;
-    }
-
-    if (!validarCorreo(email)) {
-      notificar('Por favor, ingresa un correo válido (ej: @duoc.cl, @profesor.duoc.cl o @gmail.com).', 'danger');
-      return;
-    }
-
-    if (!validarPassword(password)) {
-      notificar('La contraseña debe tener entre 4 y 10 caracteres.', 'danger');
-      return;
-    }
-
-    // El nombre completo se separa: primera palabra = nombre, el resto = apellidos
-    const [primero, ...resto] = nombre.trim().split(/\s+/);
-
+    setGuardando(true);
     try {
       await crearUsuario({
-        nombre: primero,
-        apellidos: resto.join(' '),
-        correo: email.trim(),
-        password,
-        rol,
+        ...formulario,
+        run: formulario.run.trim(),
+        nombre: formulario.nombre.trim(),
+        apellidos: formulario.apellidos.trim(),
+        correo: formulario.correo.trim(),
+        telefono: formulario.telefono.trim() || null,
+        fechaNacimiento: formulario.fechaNacimiento || null,
+        direccion: formulario.direccion.trim(),
       });
     } catch (err) {
-      notificar(err.message, 'danger');
+      if (err.campo) {
+        setErrores((actual) => ({ ...actual, [err.campo]: err.message }));
+      } else {
+        notificar(err.message, 'danger');
+      }
+      setGuardando(false);
       return;
     }
 
@@ -51,77 +104,104 @@ export default function AdminUsuariosNuevo() {
     navigate('/admin/usuarios');
   };
 
+  const campo = (name, label, { type = 'text', maxLength, placeholder, optional = false } = {}) => (
+    <div className="mb-3">
+      <label htmlFor={name} className="form-label fw-semibold">
+        {label}{optional && <span className="text-muted fw-normal"> (opcional)</span>}
+      </label>
+      <input
+        id={name}
+        name={name}
+        type={type}
+        maxLength={maxLength}
+        className={`form-control ${errores[name] ? 'is-invalid' : ''}`}
+        value={formulario[name]}
+        onChange={handleChange}
+        placeholder={placeholder}
+        aria-invalid={Boolean(errores[name])}
+        aria-describedby={errores[name] ? `${name}-error` : undefined}
+      />
+      {errores[name] && <div id={`${name}-error`} className="invalid-feedback">{errores[name]}</div>}
+    </div>
+  );
+
   return (
-    <>
-      
-      
+    <div>
+      <header className="admin-header mb-4">
+        <h1 className="fw-bold text-dark">Agregar Nuevo Usuario</h1>
+      </header>
 
-      {/* Contenido Principal */}
-      <div>
-        <header className="admin-header mb-4">
-          <h1 className="fw-bold text-dark">Agregar Nuevo Usuario</h1>
-        </header>
+      <div className="card border-0 shadow-sm rounded-4 p-4" style={{ maxWidth: '600px' }}>
+        <form onSubmit={handleSubmit} noValidate>
+          {campo('run', 'RUN', { maxLength: 12, placeholder: 'Ej: 19011022K' })}
+          {campo('nombre', 'Nombre', { maxLength: 50 })}
+          {campo('apellidos', 'Apellidos', { maxLength: 100 })}
+          {campo('correo', 'Correo Electrónico', { type: 'email', maxLength: 100, placeholder: 'correo@ejemplo.com' })}
+          {campo('password', 'Contraseña', { type: 'password', maxLength: 10 })}
+          {campo('telefono', 'Teléfono', { type: 'tel', maxLength: 15, optional: true })}
+          {campo('fechaNacimiento', 'Fecha de nacimiento', { type: 'date', optional: true })}
+          {campo('direccion', 'Dirección', { maxLength: 300 })}
 
-        <div className="card border-0 shadow-sm rounded-4 p-4" style={{ maxWidth: '600px' }}>
-          <form onSubmit={handleSubmit} noValidate>
-            <div className="mb-3">
-              <label className="form-label fw-semibold">Nombre Completo</label>
-              <input 
-                type="text" 
-                className="form-control" 
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                required 
-                placeholder="Ej: Juan Pérez" 
-              />
-            </div>
+          <div className="mb-3">
+            <label htmlFor="region" className="form-label fw-semibold">Región</label>
+            <select
+              id="region"
+              name="region"
+              className={`form-select ${errores.region ? 'is-invalid' : ''}`}
+              value={formulario.region}
+              onChange={handleChange}
+              aria-invalid={Boolean(errores.region)}
+            >
+              <option value="">Selecciona una región</option>
+              {Object.keys(regionesComunas).map((region) => (
+                <option key={region} value={region}>{region}</option>
+              ))}
+            </select>
+            {errores.region && <div className="invalid-feedback">{errores.region}</div>}
+          </div>
 
-            <div className="mb-3">
-              <label className="form-label fw-semibold">Correo Electrónico</label>
-              <input 
-                type="email" 
-                className="form-control" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required 
-                placeholder="correo@ejemplo.com" 
-              />
-            </div>
+          <div className="mb-3">
+            <label htmlFor="comuna" className="form-label fw-semibold">Comuna</label>
+            <select
+              id="comuna"
+              name="comuna"
+              className={`form-select ${errores.comuna ? 'is-invalid' : ''}`}
+              value={formulario.comuna}
+              onChange={handleChange}
+              disabled={!formulario.region}
+              aria-invalid={Boolean(errores.comuna)}
+            >
+              <option value="">Selecciona una comuna</option>
+              {comunas.map((comuna) => <option key={comuna} value={comuna}>{comuna}</option>)}
+            </select>
+            {errores.comuna && <div className="invalid-feedback">{errores.comuna}</div>}
+          </div>
 
-            <div className="mb-3">
-              <label className="form-label fw-semibold">Contraseña</label>
-              <input 
-                type="password" 
-                className="form-control" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required 
-                placeholder="******" 
-              />
-            </div>
+          <div className="mb-4">
+            <label htmlFor="rol" className="form-label fw-semibold">Rol de Usuario</label>
+            <select
+              id="rol"
+              name="rol"
+              className={`form-select ${errores.rol ? 'is-invalid' : ''}`}
+              value={formulario.rol}
+              onChange={handleChange}
+              aria-invalid={Boolean(errores.rol)}
+            >
+              <option value="Cliente">Cliente</option>
+              <option value="Vendedor">Vendedor</option>
+              <option value="Administrador">Administrador</option>
+            </select>
+            {errores.rol && <div className="invalid-feedback">{errores.rol}</div>}
+          </div>
 
-            <div className="mb-4">
-              <label className="form-label fw-semibold">Rol de Usuario</label>
-              <select 
-                className="form-select" 
-                value={rol}
-                onChange={(e) => setRol(e.target.value)}
-                required
-              >
-                <option value="Vendedor">Vendedor</option>
-                <option value="Cliente">Cliente</option>
-                <option value="Administrador">Administrador</option>
-              </select>
-            </div>
-
-            <div className="d-flex gap-2">
-              <button type="submit" className="btn btn-primary rounded-pill px-4">Guardar Usuario</button>
-              <Link to="/admin/usuarios" className="btn btn-outline-secondary rounded-pill px-4">Cancelar</Link>
-            </div>
-          </form>
-        </div>
+          <div className="d-flex gap-2">
+            <button type="submit" className="btn btn-primary rounded-pill px-4" disabled={guardando}>
+              {guardando ? 'Guardando…' : 'Guardar Usuario'}
+            </button>
+            <Link to="/admin/usuarios" className="btn btn-outline-secondary rounded-pill px-4">Cancelar</Link>
+          </div>
+        </form>
       </div>
-
-    </>
+    </div>
   );
 }
