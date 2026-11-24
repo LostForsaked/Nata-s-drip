@@ -6,14 +6,18 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface ProductoRepository extends JpaRepository<Producto,Integer> {
+public interface ProductoRepository extends JpaRepository<Producto, Integer> {
 
     boolean existsByCodigoIgnoreCase(String codigo);
 
+    boolean existsByCodigoIgnoreCaseAndIdNot(String codigo, Integer id);
+
     boolean existsByCategoriaId(Integer idCategoria);
 
-    List<Producto> findByCategoriaId(Integer idCategoria);
+    List<Producto> findByCategoriaIdOrderById(Integer idCategoria);
 
-    @Query("select p from Producto p where p.stockCritico is not null and p.stock <= p.stockCritico")
+    List<Producto> findByDescuentoGreaterThanOrderById(Integer descuento);
+
+    @Query("select p from Producto p where p.stockCritico is not null and p.stock <= p.stockCritico order by p.id")
     List<Producto> findCriticos();
 }
